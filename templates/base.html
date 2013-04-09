@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" media="screen">
   </head>
   <body>
     <div id="messages">
@@ -18,7 +19,13 @@
     </div>
     <div id="content" class="container-fluid">
       <div class="row-fluid">
-        <div class="span2"><!--sidebar shit here --></div>
+        <div class="span2">
+          <ul class="nav nav-tabs nav-stacked">
+          {% if session['role'] == 'member' %}
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>           
+          {% endif %}
+          </ul>
+        </div>
         <div class="span10">{% block content %}{% endblock %}</div>
       </div>
     </div>

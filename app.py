@@ -21,22 +21,33 @@ def home():
 def login():
     error = None
     if request.method == 'POST':
-    	sql = ("SELECT username FROM user WHERE username = '{u}' AND password = '{p}';".format(u=request.form['username'],
+    	sql = ("SELECT username, admin, employee, member FROM user WHERE username = '{u}' AND password = '{p}';".format(u=request.form['username'],
     																						p=request.form['password']))
     	result = c.execute(sql)
 
         if result:
-        	flash('You were logged in', 'alert-success')
-        	session['username'] = c.fetchone()[0]
-        	return redirect(url_for('home'))
+            row = c.fetchone()
+            flash('You were logged in', 'alert-success')
+            session['username'] = row[0]
+            session['role'] = get_role(row)
+            return redirect(url_for('home'))
         else:
-        	flash('Incorrect login', 'alert-error')
+            flash('Incorrect login', 'alert-error')
 
     return render_template('login.html', error=error)
+
+def get_role(row):
+    if row[3]:
+        return 'member'
+    elif row[2]:
+        return 'emp'
+    elif row[1]:
+        return 'admin'
 
 @app.route('/logout', methods=['GET'])
 def logout():
     session.pop('username', None)
+    session.pop('role', None)
     flash('Logout Success', 'alert-success')
     return redirect(url_for('login'))
 
