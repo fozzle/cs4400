@@ -37,8 +37,34 @@ def login():
 @app.route('/logout', methods=['GET'])
 def logout():
     session.pop('username', None)
-    flash('Login Success')
+    flash('Logout Success')
     return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    error = None
+    if session.get('username'):
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        sql = ("INSERT INTO user VALUES"
+                "('{username}', '{password}', '{first}', '{middle}', '{last}', '{address}', '{email}',"
+                "{phone}, NULL, 0, 0, 1)".format(username=request.form['username'],
+                                                password=request.form['password'],
+                                                first=request.form['first'],
+                                                middle=request.form['middle'],
+                                                last=request.form['last'],
+                                                address=request.form['address'],
+                                                email=request.form['email'],
+                                                phone=int(request.form['phone'])))
+        try:
+            result = c.execute(sql)
+        except pymysql.err.IntegrityError:
+            flash('Username exists!')
+            return render_template('register.html', error=error)
+            
+        flash('Registered')
+        return redirect(url_for('login'))
+    return render_template('register.html', error=error)
 
 if __name__ == "__main__":
 	app.secret_key = 'sekret'
