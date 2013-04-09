@@ -26,18 +26,18 @@ def login():
     	result = c.execute(sql)
 
         if result:
-        	flash('You were logged in')
+        	flash('You were logged in', 'alert-success')
         	session['username'] = c.fetchone()[0]
         	return redirect(url_for('home'))
         else:
-        	flash('Incorrect login')
+        	flash('Incorrect login', 'alert-error')
 
     return render_template('login.html', error=error)
 
 @app.route('/logout', methods=['GET'])
 def logout():
     session.pop('username', None)
-    flash('Logout Success')
+    flash('Logout Success', 'alert-success')
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -59,10 +59,10 @@ def register():
         try:
             result = c.execute(sql)
         except pymysql.err.IntegrityError:
-            flash('Username exists!')
+            flash('Username exists!', 'alert-error')
             return render_template('register.html', error=error)
-            
-        flash('Registered')
+
+        flash('Registered', 'alert-success')
         return redirect(url_for('login'))
     return render_template('register.html', error=error)
 

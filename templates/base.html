@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div id="messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+    <div id="content" class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2"><!--sidebar shit here --></div>
+        <div class="span10">{% block content %}{% endblock %}</div>
+      </div>
+    </div>
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  </body>
+</html>

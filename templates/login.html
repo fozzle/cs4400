@@ -1,21 +1,9 @@
-<html>
-	<head>
-		<title>GT Car Rental</title>
-	</head>
-	<body>
-		{% with messages = get_flashed_messages() %}
-		  {% if messages %}
-		    <ul class=flashes>
-		    {% for message in messages %}
-		      <li>{{ message }}</li>
-		    {% endfor %}
-		    </ul>
-		  {% endif %}
-		{% endwith %}
-		<form action="" method="post">
-			<p><label>Username</label><input type=text name=username>
-			<p><label>Password</label><input type=password name=password>
-			<p><input type=submit value=Login>
-		</form>
-	</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+	<form action="" method="post">
+		<p><label>Username</label><input type=text name=username>
+		<p><label>Password</label><input type=password name=password>
+		<p><input type=submit value=Login>
+	</form>
+{% endblock %}
