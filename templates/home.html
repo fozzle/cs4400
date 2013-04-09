@@ -1,0 +1,17 @@
+<html>
+	<head>
+		<title>GT Car Rental</title>
+	</head>
+	<body>
+		{% with messages = get_flashed_messages() %}
+		  {% if messages %}
+		    <ul class=flashes>
+		    {% for message in messages %}
+		      <li>{{ message }}</li>
+		    {% endfor %}
+		    </ul>
+		  {% endif %}
+		{% endwith %}
+		<div>Welcome {{session['username']}}</div>
+	</body>
+</html>
