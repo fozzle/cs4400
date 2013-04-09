@@ -12,7 +12,7 @@ Git 20second Primer
 
 All of you made github accounts by now. I will add you as collaborators so you can push/pull to the repo. 
 
-    git clone git@github.com:fozzle/cs4400.git cs4400
+    git clone https://github.com/fozzle/cs4400.git cs4400
 
 Run that command in whatever directory you want using your Terminal. This will create the cs4400 folder, git repository, and download all the files.
 
