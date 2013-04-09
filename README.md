@@ -91,4 +91,12 @@ Flask
 
 Just read the flask documentation or follow my examples. Text or call me if you have questions I'd rather answer them then you waste hours doing nothing.
 
+If you've done all of the above and you have MySQL connected, dependencies installed, and venv activated, you can start the website with:
+    
+    python app.py
+
+And find the website with your browser at:
+
+    localhost:5000
+
 
