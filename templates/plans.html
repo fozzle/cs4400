@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Plans{% endblock %}
+{% block content %}
+<table class="table">
+	<thead>
+	<tr>
+		<th>Type</th>
+		<th>Discount</th>
+		<th>Monthly Payment</th>
+		<th>Annual Fees</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for (type, discount, month, ann) in rows %}
+	<tr>
+		<td>{{ type }}</td>
+		<td>{% if discount %}%{% endif %}{{ discount }}</td>
+		<td>{% if month %}${% endif %}{{ month }}</td>
+		<td>{% if ann %}${% endif %}{{ ann }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

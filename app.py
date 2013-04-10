@@ -11,6 +11,10 @@ conn = pymysql.connect(host='localhost',
 
 c = conn.cursor()
 
+#===============================================
+# GENERAL USER MGMT AND HOME
+#===============================================
+
 @app.route("/")
 def home():
 	if session.get('username'):
@@ -96,6 +100,30 @@ def register():
         flash('Registered', 'alert-success')
         return redirect(url_for('login'))
     return render_template('register.html', error=error)
+
+#===========================================
+# MEMBER FUNCTIONS
+#===========================================
+@app.route('/plans', methods=['GET'])
+def plans():
+    if not session.get('username'):
+        return redirect(url_for('login'))
+
+    sql = "SELECT * FROM drivingplan"
+    c.execute(sql)
+    rows = c.fetchall()
+    return render_template('plans.html', rows=rows)
+
+
+#===========================================
+# ADMIN FUNCTIONS
+#===========================================
+
+#===========================================
+# EMPLOYEE FUNCTIONS
+#===========================================
+
+
 
 if __name__ == "__main__":
 	app.secret_key = 'sekret'
