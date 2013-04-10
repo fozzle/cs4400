@@ -114,6 +114,32 @@ def plans():
     rows = c.fetchall()
     return render_template('plans.html', rows=rows)
 
+@app.route('/personal_info', methods=['GET', 'POST'])
+def personal_info():
+    user = {}
+    user_sql = "SELECT * FROM member WHERE username='{username}'".format(username=session['username'])
+    print user_sql
+    r = c.execute(user_sql)
+    if not r:
+        flash('You are not a member', 'alert-error')
+        return redirect(url_for('home'))
+
+    # Pack values into user dict for more sane access.
+    user_row = c.fetchone()
+    user['firstname'] = user_row[1]
+    user['lastname'] = user_row[2]
+    user['middle'] = user_row[3]
+    user['address'] = user_row[4]
+    user['phone'] = user_row[5]
+    user['email'] = user_row[6]
+
+
+    if request.method == 'POST':
+        # Process form data into seperate SQL statements
+        pass
+
+    return render_template('personal_info.html', user=user)
+
 
 #===========================================
 # ADMIN FUNCTIONS

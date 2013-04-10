@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Personal Info{% endblock %}
+{% block content %}
+<form method='post' action=''>
+	<p><label>First Name</label><input type=text name=firstname value={{ user['firstname'] }}>
+	<p><label>Middle Initial</label><input type=text name=middleinit value={{ user['middle'] }}>
+	<p><label>Last Name</label><input type=text name=lastname value={{ user['lastname'] }}>
+	<p><label>Email</label><input type=text name=email value={{ user['email'] }}>
+	<p><label>Phone</label><input type=text name=phone value={{ user['phone'] }}>
+	<p><label>Address</label><input type=text name=address value={{ user['address'] }}>
+	<p><button type=submit class=btn>Submit</button>
+</form>
+{% endblock %}
