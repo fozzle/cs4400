@@ -21,7 +21,7 @@ def home():
 def login():
     error = None
     if request.method == 'POST':
-    	sql = ("SELECT username, admin, employee, member FROM user WHERE username = '{u}' AND password = '{p}';".format(u=request.form['username'],
+    	sql = ("SELECT username FROM user WHERE username = '{u}' AND password = '{p}';".format(u=request.form['username'],
     																						p=request.form['password']))
     	result = c.execute(sql)
 
@@ -29,19 +29,26 @@ def login():
             row = c.fetchone()
             flash('You were logged in', 'alert-success')
             session['username'] = row[0]
-            session['role'] = get_role(row)
+            session['role'] = get_role(row[0])
             return redirect(url_for('home'))
         else:
             flash('Incorrect login', 'alert-error')
 
     return render_template('login.html', error=error)
 
-def get_role(row):
-    if row[3]:
+def get_role(username):
+    admin = "SELECT username FROM Administrator WHERE username= '{u}'".format(u=username)
+    employee = "SELECT username FROM GTCREmployee WHERE username= '{u}'".format(u=username)
+    member = "SELECT username FROM member WHERE username= '{u}'".format(u=username)
+
+    result = c.execute(member)
+    if result:
         return 'member'
-    elif row[2]:
+    result = c.execute(employee)
+    if result:
         return 'emp'
-    elif row[1]:
+    result = c.execute(admin)
+    if result:
         return 'admin'
 
 @app.route('/logout', methods=['GET'])
@@ -57,21 +64,34 @@ def register():
     if session.get('username'):
         return redirect(url_for('home'))
     if request.method == 'POST':
-        sql = ("INSERT INTO user VALUES"
-                "('{username}', '{password}', '{first}', '{middle}', '{last}', '{address}', '{email}',"
-                "{phone}, NULL, 0, 0, 1)".format(username=request.form['username'],
-                                                password=request.form['password'],
-                                                first=request.form['first'],
-                                                middle=request.form['middle'],
-                                                last=request.form['last'],
-                                                address=request.form['address'],
-                                                email=request.form['email'],
-                                                phone=int(request.form['phone'])))
+        if request.form['password'] != request.form['passwordconf']:
+            flash('Passwords do not match!', 'alert-error')
+            return render_template('register.html', error=error)
+
+        sql = ("INSERT INTO user VALUES "
+                "('{username}', '{password}')".format(username=request.form['username'],
+                                                password=request.form['password']))
+
+        if request.form['type'] == 'member':
+            role = ("INSERT INTO member VALUES "
+                        "('{username}', 'firstname', 'lastname', 'm', '123 sesame', NULL, NULL, NULL, NULL)"
+                        .format(username=request.form['username']))
+
+        elif request.form['type'] == 'emp':
+            role = "INSERT INTO GTCREmployee VALUES ('{username}')".format(username=request.form['username'])
+        
+
         try:
             result = c.execute(sql)
+            result = c.execute(role)
+            conn.commit()
         except pymysql.err.IntegrityError:
             flash('Username exists!', 'alert-error')
             return render_template('register.html', error=error)
+        except:
+            flash('Something happened!', 'alert-error')
+            return render_template('register.html', error=error)
+
 
         flash('Registered', 'alert-success')
         return redirect(url_for('login'))
