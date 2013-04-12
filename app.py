@@ -140,6 +140,16 @@ def personal_info():
 
     return render_template('personal_info.html', user=user)
 
+@app.route('/rent', methods=['GET','POST'])
+def rent():
+        pass
+
+def availability():
+        pass
+
+def rental_info():
+        pass
+
 
 #===========================================
 # ADMIN FUNCTIONS
