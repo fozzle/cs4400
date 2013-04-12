@@ -142,6 +142,7 @@ def personal_info():
 
 @app.route('/rent', methods=['GET','POST'])
 def rent():
+        return render_template('rent.html')
         pass
 
 def availability():
