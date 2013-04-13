@@ -116,29 +116,63 @@ def plans():
 
 @app.route('/personal_info', methods=['GET', 'POST'])
 def personal_info():
-    user = {}
+
+    if request.method == 'POST':
+
+        card_sql = ("INSERT INTO credit_card(CardNo, Name, CVV, ExpiryDate, BillingAdd) "
+                    "VALUES ({cardno}, '{name}', {cvv}, '{exp}', '{billing}') ON DUPLICATE KEY UPDATE "
+                    "Name='{name}', CVV={cvv}, ExpiryDate='{exp}', BillingAdd='{billing}'"
+                    .format(cardno=request.form['cardno'],
+                            name=request.form['name'],
+                            cvv=request.form['cvv'],
+                            exp=request.form['expdate'],
+                            billing=request.form['billingadd']))
+
+        user_sql = ("UPDATE member SET FirstName='{firstname}', LastName='{lastname}', MiddleInit='{middle}', " 
+                    "Address='{addr}', PhoneNo={phone}, EmailAddress='{email}', CardNo={cardno}, DrivingPlan='{drivingplan}' " 
+                    "WHERE username='{username}'".format(username=session['username'],
+                                                        firstname=request.form['firstname'],
+                                                        lastname=request.form['lastname'],
+                                                        middle=request.form['middleinit'],
+                                                        addr=request.form['address'],
+                                                        phone=request.form['phone'],
+                                                        email=request.form['email'],
+                                                        cardno=request.form['cardno'],
+                                                        drivingplan=request.form['plan']))
+
+        try:
+            c.execute(card_sql)
+            c.execute(user_sql)
+            conn.commit()
+        except pymysql.err.IntegrityError:
+            flash("IntegrityError!", 'alert-error')
+        
+        flash('Updated!', 'alert-success')
+
     user_sql = "SELECT * FROM member WHERE username='{username}'".format(username=session['username'])
-    print user_sql
+
     r = c.execute(user_sql)
     if not r:
         flash('You are not a member', 'alert-error')
         return redirect(url_for('home'))
 
-    # Pack values into user dict for more sane access.
     user_row = c.fetchone()
-    user['firstname'] = user_row[1]
-    user['lastname'] = user_row[2]
-    user['middle'] = user_row[3]
-    user['address'] = user_row[4]
-    user['phone'] = user_row[5]
-    user['email'] = user_row[6]
 
+    # Get driving plans available.
+    plans_sql = "SELECT Type FROM drivingplan"
+    c.execute(plans_sql)
+    plans = c.fetchall()
 
-    if request.method == 'POST':
-        # Process form data into seperate SQL statements
-        pass
+    # Get card info, if exists
+    card = ('', '', '', '')
+    if user_row[7]:
+        card_sql = "SELECT Name, CVV, ExpiryDate, BillingAdd FROM credit_card WHERE CardNo={cardno}".format(cardno=user_row[7])
+        r = c.execute(card_sql)
+        card = c.fetchone()
 
-    return render_template('personal_info.html', user=user)
+    
+    print card
+    return render_template('personal_info.html', user=user_row, plans=plans, card=card)
 
 @app.route('/rent', methods=['GET','POST'])
 def rent():

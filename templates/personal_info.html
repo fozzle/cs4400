@@ -1,13 +1,43 @@
 {% extends 'base.html' %}
 {% block title %}Personal Info{% endblock %}
 {% block content %}
+{% with (username, firstname, lastname, middle, address, phone, email, cardno, drivingplan) = user, (name, cvv, exp, billingadd) = card %}
 <form method='post' action=''>
-	<p><label>First Name</label><input type=text name=firstname value={{ user['firstname'] }}>
-	<p><label>Middle Initial</label><input type=text name=middleinit value={{ user['middle'] }}>
-	<p><label>Last Name</label><input type=text name=lastname value={{ user['lastname'] }}>
-	<p><label>Email</label><input type=text name=email value={{ user['email'] }}>
-	<p><label>Phone</label><input type=text name=phone value={{ user['phone'] }}>
-	<p><label>Address</label><input type=text name=address value={{ user['address'] }}>
+	<h2>General Information</h2>
+	<p><label>First Name</label><input type=text name=firstname value='{{ firstname }}'>
+	<p><label>Middle Initial</label><input type=text name=middleinit value='{{ middle }}'>
+	<p><label>Last Name</label><input type=text name=lastname value='{{ lastname }}'>
+	<p><label>Email</label><input type=text name=email value='{{ email }}'>
+	<p><label>Phone</label><input type=text name=phone value={{ phone }}>
+	<p><label>Address</label><input type=text name=address value='{{ address }}'>
+
+	<h2>Membership Information</h2>
+	<p><label>Driving Plan</label>
+		{% for (type) in plans %}
+		<label class="radio">
+			<input type=radio name=plan value='{{ type[0] }}' {% if type[0] == drivingplan %}checked{%endif%}>
+			{{ type[0] }}
+		</label>
+		{% endfor %}
+	<p><a href="{{ url_for('plans') }}">View Driving Plans</a></p>
+	<h2>Payment Information</h2>
+	<p><label>Card No</label><input type=text name=cardno value={{ cardno }}>
+	<p><label>CVV</label><input type=text name=cvv value={{ cvv }}>
+	<p><label>Name</label><input type=text name=name value='{{ name }}'>
+	<p><label>Expiration Date</label>
+		<select name='exp_mo' class="input-mini">
+			{% for x in range(1, 13) %}
+			<option value=x>{{ x }}</option>
+			{% endfor %}
+		</select>
+		<select name='exp_year' class="input-medium">
+			{% for y in range(2013, 2020) %}
+			<option value=y>{{ y }}</option>
+			{% endfor %}
+		</select>
+	<p><label>Billing Address</label><input type=text name=billingadd value='{{ billingadd }}'>
 	<p><button type=submit class=btn>Submit</button>
+	
 </form>
+{% endwith %}
 {% endblock %}
