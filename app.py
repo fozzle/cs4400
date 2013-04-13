@@ -120,13 +120,15 @@ def personal_info():
     if request.method == 'POST':
 
         card_sql = ("INSERT INTO credit_card(CardNo, Name, CVV, ExpiryDate, BillingAdd) "
-                    "VALUES ({cardno}, '{name}', {cvv}, '{exp}', '{billing}') ON DUPLICATE KEY UPDATE "
-                    "Name='{name}', CVV={cvv}, ExpiryDate='{exp}', BillingAdd='{billing}'"
+                    "VALUES ({cardno}, '{name}', {cvv}, '{exp_year}-{exp_mo}-01', '{billing}') ON DUPLICATE KEY UPDATE "
+                    "Name='{name}', CVV={cvv}, ExpiryDate='{exp_year}-{exp_mo}-01', BillingAdd='{billing}'"
                     .format(cardno=request.form['cardno'],
                             name=request.form['name'],
                             cvv=request.form['cvv'],
-                            exp=request.form['expdate'],
+                            exp_year=request.form['exp_year'],
+                            exp_mo=request.form['exp_mo'],
                             billing=request.form['billingadd']))
+        print card_sql
 
         user_sql = ("UPDATE member SET FirstName='{firstname}', LastName='{lastname}', MiddleInit='{middle}', " 
                     "Address='{addr}', PhoneNo={phone}, EmailAddress='{email}', CardNo={cardno}, DrivingPlan='{drivingplan}' " 
@@ -170,9 +172,9 @@ def personal_info():
         r = c.execute(card_sql)
         card = c.fetchone()
 
-    
-    print card
-    return render_template('personal_info.html', user=user_row, plans=plans, card=card)
+    year = card[2].year
+    month = card[2].month    
+    return render_template('personal_info.html', user=user_row, plans=plans, card=card, year=year, month=month)
 
 @app.route('/rent', methods=['GET','POST'])
 def rent():

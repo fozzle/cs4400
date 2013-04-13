@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Personal Info{% endblock %}
+{% block header %}<h1>Edit Personal Information</h1>{% endblock %}
 {% block content %}
 {% with (username, firstname, lastname, middle, address, phone, email, cardno, drivingplan) = user, (name, cvv, exp, billingadd) = card %}
 <form method='post' action=''>
@@ -19,7 +20,7 @@
 			{{ type[0] }}
 		</label>
 		{% endfor %}
-	<p><a href="{{ url_for('plans') }}">View Driving Plans</a></p>
+	<p><a href="{{ url_for('plans') }}">View Plan Details</a></p>
 	<h2>Payment Information</h2>
 	<p><label>Card No</label><input type=text name=cardno value={{ cardno }}>
 	<p><label>CVV</label><input type=text name=cvv value={{ cvv }}>
@@ -27,12 +28,12 @@
 	<p><label>Expiration Date</label>
 		<select name='exp_mo' class="input-mini">
 			{% for x in range(1, 13) %}
-			<option value=x>{{ x }}</option>
+			<option value={{ x }} {% if x == month %}selected=selected{% endif %}>{{ x }}</option>
 			{% endfor %}
 		</select>
 		<select name='exp_year' class="input-medium">
 			{% for y in range(2013, 2020) %}
-			<option value=y>{{ y }}</option>
+			<option value={{ y }} {% if y == year %}selected=selected{% endif %}>{{ y }}</option>
 			{% endfor %}
 		</select>
 	<p><label>Billing Address</label><input type=text name=billingadd value='{{ billingadd }}'>
