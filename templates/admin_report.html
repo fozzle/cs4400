@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+	<table class="table">
+	<thead>
+	<tr>
+		<th>Vehicle Sno</th>
+		<th>Type</th>
+		<th>Model</th>
+		<th>Reservation Revenue</th>
+		<th>Late Fees Revenue</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for (vsn, type, model, revenue, late) in data %}
+	<tr>
+		<td>{{ vsn }}</td>
+		<td>{{ type }}</td>
+		<td>{{ model }}</td>
+		<td>{% if revenue %}${% endif %}{{ revenue }}</td>
+		<td>{% if late %}${% endif %}{{ late }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

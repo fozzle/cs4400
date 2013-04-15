@@ -196,6 +196,19 @@ def rental_info():
 # ADMIN FUNCTIONS
 #===========================================
 
+@app.route('/admin/reports', methods=['GET'])
+def admin_reports():
+    if not session.get('role') == 'admin':
+        return redirect(url_for('home'))
+
+    sql = ("SELECT car.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` "
+            "WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() "
+            "GROUP BY VehicleSno ORDER BY Type")
+    c.execute(sql)
+    data = c.fetchall()
+
+    return render_template('admin_report.html', data=data)
+
 #===========================================
 # EMPLOYEE FUNCTIONS
 #===========================================
