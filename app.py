@@ -187,6 +187,9 @@ def personal_info():
 
 @app.route('/rent', methods=['GET','POST'])
 def rent():
+        if session['role'] != 'member':
+            return redirect(url_for('home'))
+            
         locations = "SELECT LocationName FROM location"
         m = "SELECT CarModel FROM car GROUP BY CarModel"
         t = "SELECT Type FROM car GROUP BY CarModel"
@@ -201,33 +204,31 @@ def rent():
         types = c.fetchall()
 
         dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
-        print dates
-
-        if request.method == 'POST':
-                    pickdate = request.form['pickdate']
-                    returndate = request.form['returndate']
-                    delta = date(int(returndate[0:3]), int(returndate[5:6]), int(returndate[8:9])) - date(int(pickdate[0:3]), int(pickdate[5:6]), int(pickdate[8:9]))
-
-                    #making sure the location the person chose last comes first
-                    loc = request.form['location']
-                    ind = locations.index(loc)
-                    locations.pop(ind)
-                    locations.insert(0,loc)
-
-                    #making sure the date is less than two
-                    if delta >2:
-                        flash("You cannot rent a car for more than two days")
-
-                    return redirect(url_for('availability'))
                         
-
-
         return render_template('rent.html', locations = locations, models = models, types = types, dates=dates)
 
 @app.route('/availability', methods=['GET','POST'])
 def availability():
+
+        if session['role'] != 'member':
+            return redirect(url_for('home'))
+
+        # If this came from the rent form... (it should have)
+        if request.args.get('pickdate', '') and request.args.get('returndate', ''):
+                    pickdate = request.args.get('pickdate', '')
+                    returndate = request.args.get('returndate', '')
+
+                    delta = date(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10])) - date(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]))
+
+                    #making sure the date is less than two
+                    if delta.days > 2:
+                        flash("You cannot rent a car for more than two days")
+                        return redirect(url_for('rent'))
+
+        # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
+        # The names of the arg are the same as in the rent form. 
+
         return render_template('availability.html')
-        pass
 
 def rental_info():
         pass
