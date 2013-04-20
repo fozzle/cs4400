@@ -179,10 +179,10 @@ def personal_info():
 @app.route('/rent', methods=['GET','POST'])
 def rent():
         if request.method == 'POST':
-                a = request.form['date']
-                print(a)
-        return render_template('rent.html')
+                a = request.form['pickdate']
 
+                return render_template('home.html')
+        return render_template('rent.html')
         pass
 
 def availability():
