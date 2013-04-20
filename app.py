@@ -188,18 +188,24 @@ def rent():
         if request.method == 'POST':
                 a = request.form['pickdate']
                 loc = request.form['location']
-                models = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
-                c.execute(models)
+                m = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
+                t = "SELECT Type FROM car WHERE CarLocation='{place}'".format(place=loc)
+                c.execute(m)
                 a = c.fetchall()
-                setloc = [loc]
-                print loc
+                c.execute(t)
+                b = c.fetchall()
                 print a
+                print b
+                setloc = [loc]
                 models = []
+                types = []
+                for item in b:
+                        types.append(item[0])
                 for item in a:
                         models.append(item[0])
-                return render_template('rent.html', models=models, data=setloc)
-        if request.method == "STUFF":
-                flash('hopefully this worked')
+                print types
+                return render_template('rent.html', models=models, types=types, data=setloc)
+        
 
         return render_template('rent.html', data = r)
         pass

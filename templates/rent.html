@@ -28,10 +28,19 @@
 		</select>
 	<p><button type=submit class=btn>Find Types</button>
 	<a href="{{ url_for('rent') }}">Reset?</a>
-	<label>Cars</label>
+	<label>Sort By</label>
 		<select name=cars>
+			<option>Model</option>
 		{% for (carmodel) in models %}
 			<option>{{ carmodel }}</option>
+		
+		{% endfor %}
+		</select>
+	<label>or</label>
+		<select name=cars>
+			<option>Types</option>
+		{% for (types) in types %}
+			<option>{{ types }}</option>
 		
 		{% endfor %}
 		</select>
