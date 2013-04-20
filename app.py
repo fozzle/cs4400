@@ -178,11 +178,28 @@ def personal_info():
 
 @app.route('/rent', methods=['GET','POST'])
 def rent():
+        locations = "SELECT LocationName FROM location"
+        c.execute(locations)
+        a = c.fetchall()
+        r =[]
+        for item in a:
+                r.append(item[0])
+                
         if request.method == 'POST':
                 a = request.form['pickdate']
+                loc = request.form['location']
+                models = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
+                c.execute(models)
+                a = c.fetchall()
+                setloc = [loc]
+                print loc
+                print a
+                models = []
+                for item in a:
+                        models.append(item[0])
+                return render_template('rent.html', models=models, data=setloc)
 
-                return render_template('home.html')
-        return render_template('rent.html')
+        return render_template('rent.html', data = r)
         pass
 
 def availability():

@@ -21,14 +21,19 @@
 		</select>
 	<label>Location</label>
 		<select name=location>
-			<option value ="Peters" >Peters</option>
+		{% for (location) in data %}
+			<option>{{ location }}</option>
+		
+		{% endfor %}
 		</select>
-	
+	<p><button type=submit class=btn>Find Car</button>
 	<label>Cars</label>
 		<select name=cars>
-			<option value ="Peters" >Peters</option>
+		{% for (carmodel) in models %}
+			<option>{{ carmodel }}</option>
+		
+		{% endfor %}
 		</select>
-	
+
 	</form>
-	<a href="{{ url_for('register') }}">New User?</a>
 {% endblock %}
