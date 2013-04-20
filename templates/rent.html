@@ -5,17 +5,47 @@
 	
 	<label>Pick Up Date and Time</label>
 		<select name=pickdate>
-			<option value ="04/12/2013" >04/12/2013</option>
+			{% for (pick) in pick %}
+				<option>{{ pick }}</option>	
+			{% endfor %}
+			<option value ="04-20-2013" >04-20-2013</option>
+			<option value ="04-21-2013" >04-21-2013</option>
+			<option value ="04-22-2013" >04-22-2013</option>
+			<option value ="04-23-2013" >04-23-2013</option>
+			<option value ="04-24-2013" >04-24-2013</option>
+			<option value ="04-25-2013" >04-25-2013</option>
+			<option value ="04-26-2013" >04-26-2013</option>
+			<option value ="04-27-2013" >04-27-2013</option>
+			<option value ="04-28-2013" >04-28-2013</option>
+			<option value ="04-29-2013" >04-29-2013</option>
+			<option value ="04-30-2013" >04-30-2013</option>
+			<option value ="05-01-2013" >05-01-2013</option>
+			<option value ="05-02-2013" >05-02-2013</option>
 		</select>
 		<select name=picktime>
 			<option value ="00:00" >00:00</option>
 			<option value ="00:30" >00:30</option>
 		</select>
 	<label>Return Date and Time</label>
-		<select name=pickdate>
-			<option value ="04/12/2013" >04/12/2013</option>
+		<select name=returndate>
+			{% for (ret) in ret %}
+				<option>{{ ret }}</option>	
+			{% endfor %}
+			<option value ="04-20-2013" >04-20-2013</option>
+			<option value ="04-21-2013" >04-21-2013</option>
+			<option value ="04-22-2013" >04-22-2013</option>
+			<option value ="04-23-2013" >04-23-2013</option>
+			<option value ="04-24-2013" >04-24-2013</option>
+			<option value ="04-25-2013" >04-25-2013</option>
+			<option value ="04-26-2013" >04-26-2013</option>
+			<option value ="04-27-2013" >04-27-2013</option>
+			<option value ="04-28-2013" >04-28-2013</option>
+			<option value ="04-29-2013" >04-29-2013</option>
+			<option value ="04-30-2013" >04-30-2013</option>
+			<option value ="05-01-2013" >05-01-2013</option>
+			<option value ="05-02-2013" >05-02-2013</option>
 		</select>
-		<select name=picktime>
+		<select name=returntime>
 			<option value ="00:00" >00:00</option>
 			<option value ="00:30" >00:30</option>
 		</select>
@@ -26,27 +56,21 @@
 		
 		{% endfor %}
 		</select>
-	<p><button type=submit class=btn>Find Types</button>
+	<p><button type=submit class=btn>Search Location</button>
 	<a href="{{ url_for('rent') }}">Reset?</a>
-	<label>Sort By</label>
+	<br><br><br><br><br>
+	<label>Sort By Models</label>
 		<select name=cars>
-			<option>Model</option>
 		{% for (carmodel) in models %}
-			<option>{{ carmodel }}</option>
-		
+			<option>{{ carmodel }}</option>		
 		{% endfor %}
 		</select>
-	<label>or</label>
+	<label>or Sort by Types</label>
 		<select name=cars>
-			<option>Types</option>
 		{% for (types) in types %}
-			<option>{{ types }}</option>
-		
+			<option>{{ types }}</option>	
 		{% endfor %}
 		</select>
 
-	</form>
-	<form action="" method="stuff">
-		<p><button type=submit class=btn>SEARCH</button>
 	</form>
 {% endblock %}

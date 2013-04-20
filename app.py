@@ -181,33 +181,46 @@ def rent():
         locations = "SELECT LocationName FROM location"
         c.execute(locations)
         a = c.fetchall()
-        r =[]
+        locations =[]
+        models = []
+        types = []
         for item in a:
-                r.append(item[0])
+                locations.append(item[0])
                 
         if request.method == 'POST':
-                a = request.form['pickdate']
+                pickdate = request.form['pickdate']
+                returndate = request.form['returndate']
+                timedelta= int(returndate[3:5])-int(pickdate[3:5])
+                #making sure the location the person chose last comes first
                 loc = request.form['location']
+                ind = locations.index(loc)
+                locations.pop(ind)
+                locations.insert(0,loc)
+                
                 m = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
                 t = "SELECT Type FROM car WHERE CarLocation='{place}'".format(place=loc)
                 c.execute(m)
                 a = c.fetchall()
                 c.execute(t)
                 b = c.fetchall()
-                print a
-                print b
+                #setting values to come back into the form
                 setloc = [loc]
-                models = []
-                types = []
+                pick=[pickdate]
+                ret=[returndate]
+
+                #making sure the date is less than two
+                if timedelta >2:
+                        pick=[]
+                        ret=[]
+                        flash("You cannot rent a car for more than two days")
                 for item in b:
                         types.append(item[0])
                 for item in a:
                         models.append(item[0])
-                print types
-                return render_template('rent.html', models=models, types=types, data=setloc)
+                return render_template('rent.html', models=models, types=types, data=locations, pick=pick, ret=ret)
         
-
-        return render_template('rent.html', data = r)
+        
+        return render_template('rent.html', data = locations)
         pass
 
 def availability():
