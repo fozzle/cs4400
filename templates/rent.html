@@ -2,7 +2,6 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 	<form action="" method="post">
-	
 	<label>Pick Up Date and Time</label>
 		<select name=pickdate>
 			{% for (pick) in pick %}
@@ -71,6 +70,15 @@
 			<option>{{ types }}</option>	
 		{% endfor %}
 		</select>
-
+	<p><button type=submit class=btn>Sumbit</button>
+		<select name=menu style="visibility:hidden;">
+		{% for (item) in ready %}
+				<option>{{ item }}</option>	
+			{% endfor %}
+		<option>1</option>
+	<select>
+	</form>
+	<form action="" method="post">
+		
 	</form>
 {% endblock %}

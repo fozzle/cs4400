@@ -176,7 +176,7 @@ def personal_info():
     month = card[2].month    
     return render_template('personal_info.html', user=user_row, plans=plans, card=card, year=year, month=month)
 
-@app.route('/rent', methods=['GET','POST', 'STUFF'])
+@app.route('/rent', methods=['GET','POST'])
 def rent():
         locations = "SELECT LocationName FROM location"
         c.execute(locations)
@@ -184,46 +184,55 @@ def rent():
         locations =[]
         models = []
         types = []
+        ready = []
         for item in a:
                 locations.append(item[0])
-                
+                               
         if request.method == 'POST':
-                pickdate = request.form['pickdate']
-                returndate = request.form['returndate']
-                timedelta= int(returndate[3:5])-int(pickdate[3:5])
-                #making sure the location the person chose last comes first
-                loc = request.form['location']
-                ind = locations.index(loc)
-                locations.pop(ind)
-                locations.insert(0,loc)
-                
-                m = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
-                t = "SELECT Type FROM car WHERE CarLocation='{place}'".format(place=loc)
-                c.execute(m)
-                a = c.fetchall()
-                c.execute(t)
-                b = c.fetchall()
-                #setting values to come back into the form
-                setloc = [loc]
-                pick=[pickdate]
-                ret=[returndate]
+                if request.form['menu'] =='1':
+                        pickdate = request.form['pickdate']
+                        returndate = request.form['returndate']
+                        timedelta= int(returndate[3:5])-int(pickdate[3:5])
+                        #making sure the location the person chose last comes first
+                        loc = request.form['location']
+                        ind = locations.index(loc)
+                        locations.pop(ind)
+                        locations.insert(0,loc)
+                        m = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
+                        t = "SELECT Type FROM car WHERE CarLocation='{place}'".format(place=loc)
+                        c.execute(m)
+                        a = c.fetchall()
+                        c.execute(t)
+                        b = c.fetchall()
+                        
+                        #setting values to come back into the form
+                        setloc = [loc]
+                        pick=[pickdate]
+                        ret=[returndate]
 
-                #making sure the date is less than two
-                if timedelta >2:
-                        pick=[]
-                        ret=[]
-                        flash("You cannot rent a car for more than two days")
-                for item in b:
-                        types.append(item[0])
-                for item in a:
-                        models.append(item[0])
-                return render_template('rent.html', models=models, types=types, data=locations, pick=pick, ret=ret)
-        
-        
-        return render_template('rent.html', data = locations)
+                        #making sure the date is less than two
+                        if timedelta >2:
+                                pick=[]
+                                ret=[]
+                                flash("You cannot rent a car for more than two days")
+                        for item in b:
+                                types.append(item[0])
+                        for item in a:
+                                models.append(item[0])
+                        ready = 'no'
+                        print request.form['menu']
+                        return render_template('rent.html', models=models, types=types, data=locations, pick=pick, ret=ret, ready=ready)
+                else:
+                        return render_template('availability.html')
+                        
+
+
+        return render_template('rent.html', data = locations, ready = ready)
         pass
 
+@app.route('/availability', methods=['GET','POST'])
 def availability():
+        return render_template('availability.html')
         pass
 
 def rental_info():
