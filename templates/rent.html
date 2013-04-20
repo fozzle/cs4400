@@ -1,84 +1,95 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
 {% block content %}
+
+	<script>
+		var showHide = function(selector) {
+			var models = document.getElementById("models");
+			var types = document.getElementById("types");
+
+			if (selector.options[selector.selectedIndex].value === 'models') {
+				models.style.display = 'block';
+				types.style.display = 'none';
+			}
+			else {
+				types.style.display = 'block';
+				models.style.display = 'none';
+			}
+		}
+	</script>
 	<form action="" method="post">
+
 	<label>Pick Up Date and Time</label>
 		<select name=pickdate>
-			{% for (pick) in pick %}
-				<option>{{ pick }}</option>	
+			{% for (date) in dates %}
+				<option value="{{ date }}">{{ date }}</option>	
 			{% endfor %}
-			<option value ="04-20-2013" >04-20-2013</option>
-			<option value ="04-21-2013" >04-21-2013</option>
-			<option value ="04-22-2013" >04-22-2013</option>
-			<option value ="04-23-2013" >04-23-2013</option>
-			<option value ="04-24-2013" >04-24-2013</option>
-			<option value ="04-25-2013" >04-25-2013</option>
-			<option value ="04-26-2013" >04-26-2013</option>
-			<option value ="04-27-2013" >04-27-2013</option>
-			<option value ="04-28-2013" >04-28-2013</option>
-			<option value ="04-29-2013" >04-29-2013</option>
-			<option value ="04-30-2013" >04-30-2013</option>
-			<option value ="05-01-2013" >05-01-2013</option>
-			<option value ="05-02-2013" >05-02-2013</option>
 		</select>
-		<select name=picktime>
-			<option value ="00:00" >00:00</option>
-			<option value ="00:30" >00:30</option>
+		<select name=pickhour class="input-mini">
+			{% for x in range(0, 24) %}
+				<option value="{{ x }}">{{ x }}</option>
+			{% endfor %}
+		</select>:
+		<select name=pickmin class="input-mini">
+			<option value ="00" >:00</option>
+			<option value ="30" >:30</option>
 		</select>
+
 	<label>Return Date and Time</label>
 		<select name=returndate>
-			{% for (ret) in ret %}
-				<option>{{ ret }}</option>	
+			{% for (date) in dates %}
+				<option value="{{ date }}">{{ date }}</option>	
 			{% endfor %}
-			<option value ="04-20-2013" >04-20-2013</option>
-			<option value ="04-21-2013" >04-21-2013</option>
-			<option value ="04-22-2013" >04-22-2013</option>
-			<option value ="04-23-2013" >04-23-2013</option>
-			<option value ="04-24-2013" >04-24-2013</option>
-			<option value ="04-25-2013" >04-25-2013</option>
-			<option value ="04-26-2013" >04-26-2013</option>
-			<option value ="04-27-2013" >04-27-2013</option>
-			<option value ="04-28-2013" >04-28-2013</option>
-			<option value ="04-29-2013" >04-29-2013</option>
-			<option value ="04-30-2013" >04-30-2013</option>
-			<option value ="05-01-2013" >05-01-2013</option>
-			<option value ="05-02-2013" >05-02-2013</option>
 		</select>
-		<select name=returntime>
-			<option value ="00:00" >00:00</option>
-			<option value ="00:30" >00:30</option>
+		<select name=pickhour class="input-mini">
+			{% for x in range(0, 24) %}
+				<option value="{{ x }}">{{ x }}</option>
+			{% endfor %}
+		</select>:
+		<select name=returntime class="input-mini">
+			<option value ="00" >00</option>
+			<option value ="30" >30</option>
 		</select>
+
 	<label>Location</label>
 		<select name=location>
-		{% for (location) in data %}
-			<option>{{ location }}</option>
+		{% for location in locations %}
+			<option value="{{ location[0] }}">{{ location[0] }}</option>
 		
 		{% endfor %}
 		</select>
-	<p><button type=submit class=btn>Search Location</button>
-	<a href="{{ url_for('rent') }}">Reset?</a>
-	<br><br><br><br><br>
-	<label>Sort By Models</label>
+
+	<label>Sort By</label>
+		<select id="sortby" onchange="showHide(this)">
+			<option value="models">Model</option>
+			<option value="types">Type</option>
+		</select>
+
+	<div id="models">
+	<label>Models</label>
 		<select name=cars>
+			<option value=""></option>
 		{% for (carmodel) in models %}
-			<option>{{ carmodel }}</option>		
+			<option value="{{ carmodel[0] }}">{{ carmodel[0] }}</option>		
 		{% endfor %}
 		</select>
-	<label>or Sort by Types</label>
+	</div>
+
+	<div id="types" style='display: none'>
+	<label>Types</label>
 		<select name=cars>
-		{% for (types) in types %}
-			<option>{{ types }}</option>	
+			<option value=""></option>
+		{% for (type) in types %}
+			<option value="{{ type[0] }}">{{ type[0] }}</option>	
 		{% endfor %}
 		</select>
+	</div>
+
 	<p><button type=submit class=btn>Sumbit</button>
-		<select name=menu style="visibility:hidden;">
-		{% for (item) in ready %}
-				<option>{{ item }}</option>	
-			{% endfor %}
-		<option>1</option>
-	<select>
+
+	<a href="{{ url_for('rent') }}">Reset?</a>
+	
 	</form>
-	<form action="" method="post">
-		
-	</form>
+
+	
 {% endblock %}

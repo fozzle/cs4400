@@ -2,6 +2,7 @@ from flask import (Flask, session, redirect, url_for,
 	request, render_template, flash)
 import pymysql
 import os
+from datetime import date, timedelta
 app = Flask(__name__)
 
 conn = pymysql.connect(host='localhost', 
@@ -10,6 +11,14 @@ conn = pymysql.connect(host='localhost',
 						passwd=os.environ['DBPASS'])
 
 c = conn.cursor()
+
+#===============================================
+# UTILITY
+#===============================================
+
+def daterange(start_date, end_date):
+    for n in range(int ((end_date - start_date).days)):
+        yield start_date + timedelta(n)
 
 #===============================================
 # GENERAL USER MGMT AND HOME
@@ -179,56 +188,41 @@ def personal_info():
 @app.route('/rent', methods=['GET','POST'])
 def rent():
         locations = "SELECT LocationName FROM location"
+        m = "SELECT CarModel FROM car GROUP BY CarModel"
+        t = "SELECT Type FROM car GROUP BY CarModel"
+
         c.execute(locations)
-        a = c.fetchall()
-        locations =[]
-        models = []
-        types = []
-        ready = []
-        for item in a:
-                locations.append(item[0])
-                               
+        locations = c.fetchall()
+
+        c.execute(m)
+        models = c.fetchall()
+
+        c.execute(t)
+        types = c.fetchall()
+
+        dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
+        print dates
+
         if request.method == 'POST':
-                if request.form['menu'] =='1':
-                        pickdate = request.form['pickdate']
-                        returndate = request.form['returndate']
-                        timedelta= int(returndate[3:5])-int(pickdate[3:5])
-                        #making sure the location the person chose last comes first
-                        loc = request.form['location']
-                        ind = locations.index(loc)
-                        locations.pop(ind)
-                        locations.insert(0,loc)
-                        m = "SELECT CarModel FROM car WHERE CarLocation='{place}'".format(place=loc)
-                        t = "SELECT Type FROM car WHERE CarLocation='{place}'".format(place=loc)
-                        c.execute(m)
-                        a = c.fetchall()
-                        c.execute(t)
-                        b = c.fetchall()
-                        
-                        #setting values to come back into the form
-                        setloc = [loc]
-                        pick=[pickdate]
-                        ret=[returndate]
+                    pickdate = request.form['pickdate']
+                    returndate = request.form['returndate']
+                    delta = date(int(returndate[0:3]), int(returndate[5:6]), int(returndate[8:9])) - date(int(pickdate[0:3]), int(pickdate[5:6]), int(pickdate[8:9]))
 
-                        #making sure the date is less than two
-                        if timedelta >2:
-                                pick=[]
-                                ret=[]
-                                flash("You cannot rent a car for more than two days")
-                        for item in b:
-                                types.append(item[0])
-                        for item in a:
-                                models.append(item[0])
-                        ready = 'no'
-                        print request.form['menu']
-                        return render_template('rent.html', models=models, types=types, data=locations, pick=pick, ret=ret, ready=ready)
-                else:
-                        return render_template('availability.html')
+                    #making sure the location the person chose last comes first
+                    loc = request.form['location']
+                    ind = locations.index(loc)
+                    locations.pop(ind)
+                    locations.insert(0,loc)
+
+                    #making sure the date is less than two
+                    if delta >2:
+                        flash("You cannot rent a car for more than two days")
+
+                    return redirect(url_for('availability'))
                         
 
 
-        return render_template('rent.html', data = locations, ready = ready)
-        pass
+        return render_template('rent.html', locations = locations, models = models, types = types, dates=dates)
 
 @app.route('/availability', methods=['GET','POST'])
 def availability():
