@@ -41,12 +41,12 @@
 				<option value="{{ date }}">{{ date }}</option>	
 			{% endfor %}
 		</select>
-		<select name=pickhour class="input-mini">
+		<select name=returnhour class="input-mini">
 			{% for x in range(0, 24) %}
 				<option value="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>:
-		<select name=returntime class="input-mini">
+		<select name=returnmin class="input-mini">
 			<option value ="00" >00</option>
 			<option value ="30" >30</option>
 		</select>
@@ -67,7 +67,7 @@
 
 	<div id="models">
 	<label>Models</label>
-		<select name=cars>
+		<select name=model>
 			<option value=""></option>
 		{% for (carmodel) in models %}
 			<option value="{{ carmodel[0] }}">{{ carmodel[0] }}</option>		
@@ -77,7 +77,7 @@
 
 	<div id="types" style='display: none'>
 	<label>Types</label>
-		<select name=cars>
+		<select name=types>
 			<option value=""></option>
 		{% for (type) in types %}
 			<option value="{{ type[0] }}">{{ type[0] }}</option>	

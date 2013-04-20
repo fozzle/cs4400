@@ -1,5 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
 {% block content %}
-	<label>fuck you!</label>
+	<table class="table">
+	<thead>
+	<tr>
+		<th>Car Model</th>
+		<th>Car Type</th>
+		<th>Location</th>
+		<th>Color</th>
+		<th>Hourly Rate (Occasional Driving Plan)</th>
+		<th>Discounted Rate (Frequent Driving Plan)</th>
+		<th>Daily Rate</th>
+		<th>Seating Capacity</th>
+		<th>Transimission Type</th>
+		<th>Bluetooth Connectivity</th>
+		<th>Auxillary Cable Present</th>
+		<th>Available Till</th>
+		<th>Estimated Cost</th>
+		<th></th>
+
+	</tr>
+	</thead>
+	<tbody>
+	{% for (vsn, type, model, revenue, late) in data %}
+	<tr>
+		<td>{{ vsn }}</td>
+		<td>{{ type }}</td>
+		<td>{{ model }}</td>
+		<td>{% if revenue %}${% endif %}{{ revenue }}</td>
+		<td>{% if late %}${% endif %}{{ late }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
 {% endblock %}

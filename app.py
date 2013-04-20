@@ -217,14 +217,26 @@ def availability():
         if request.args.get('pickdate', '') and request.args.get('returndate', ''):
                     pickdate = request.args.get('pickdate', '')
                     returndate = request.args.get('returndate', '')
-
                     delta = date(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10])) - date(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]))
 
                     #making sure the date is less than two
                     if delta.days > 2:
                         flash("You cannot rent a car for more than two days")
                         return redirect(url_for('rent'))
+        pickdate = request.args.get('pickdate','')
+        pickhour = request.args.get('pickhour','')
+        pickmin = request.args.get('','')
+        
+        returndate = request.args.get('returndate','')
+        returnhour = request.args.get()
+        returnmin = request.args.get()
 
+        location = request.args.get()
+        model = request.args.get()
+        types = request.args.get()
+        
+        
+        
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
         # The names of the arg are the same as in the rent form. 
 
