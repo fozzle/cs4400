@@ -176,7 +176,7 @@ def personal_info():
     month = card[2].month    
     return render_template('personal_info.html', user=user_row, plans=plans, card=card, year=year, month=month)
 
-@app.route('/rent', methods=['GET','POST'])
+@app.route('/rent', methods=['GET','POST', 'STUFF'])
 def rent():
         locations = "SELECT LocationName FROM location"
         c.execute(locations)
@@ -198,6 +198,8 @@ def rent():
                 for item in a:
                         models.append(item[0])
                 return render_template('rent.html', models=models, data=setloc)
+        if request.method == "STUFF":
+                flash('hopefully this worked')
 
         return render_template('rent.html', data = r)
         pass

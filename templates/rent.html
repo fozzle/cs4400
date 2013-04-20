@@ -26,7 +26,8 @@
 		
 		{% endfor %}
 		</select>
-	<p><button type=submit class=btn>Find Car</button>
+	<p><button type=submit class=btn>Find Types</button>
+	<a href="{{ url_for('rent') }}">Reset?</a>
 	<label>Cars</label>
 		<select name=cars>
 		{% for (carmodel) in models %}
@@ -35,5 +36,8 @@
 		{% endfor %}
 		</select>
 
+	</form>
+	<form action="" method="stuff">
+		<p><button type=submit class=btn>SEARCH</button>
 	</form>
 {% endblock %}
