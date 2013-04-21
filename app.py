@@ -236,24 +236,42 @@ def availability():
         model = request.args.get('model','')
         types = request.args.get('types','')
         
-        thelist = [pickdate,pickhour,pickmin,returndate,returnhour,returnmin,location,model,types]
+        #Setting the sql for the table
         if types:
-            sql = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and Type='{t}'".format(l = location, t = types)
-            c.execute(sql)
-            things = c.fetchall()
-            print things
-        else:
-            sql = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
-            c.execute(sql)
-            things = c.fetchall()
-            print things
-
-        sub = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car MINUS "+sql
-        print sub
-        c.execute(sub)
-        print sub
+            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and Type='{t}'".format(l = location, t = types)
             
+            c.execute(sql)
+            things = c.fetchall()
+            sub ="SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' GROUP BY CarLocation".format(t = types)
+            print sub
+            
+        else:
+            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
+            c.execute(sql)
+            things = c.fetchall()
+            sub = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' GROUP BY CarLocation".format(m = model)
 
+        c.execute(sub)
+        extra = c.fetchall()
+        #sorting the tuples into a list so i can mess around with their innards
+        final = []
+        a = []
+        b = []
+        for item in things:
+            a.append(list(item))        
+        for item in extra:
+            b.append(list(item))
+
+        #Checking for duplicate entries in the sql based off their VehicleSno
+        for x in range(len(a)):
+            for y in range(len(b)):
+                try:
+                    if a[x][0] == b[y][0]:
+                        b.pop(y)
+                except:
+                    pass
+
+        #Getting the user's plan info so I can make an estimate of the cost
         user= session.get('username')
         sql = "SELECT DrivingPlan FROM member WHERE Username='{u}'".format(u = user)
         c.execute(sql)
@@ -262,10 +280,26 @@ def availability():
         if plan == "Daily Driving":
             pass
         
+        #Concatination and editing the final lists of vehicles                 
+        final = a+b           
+        for item in final:
+            vsno = item[0] #i'm keeping the vsno around so that maybe we can use it as the value of the select button so it will make the insertion into the rental sql easier? maybe?
+            item.pop(0)
+            item.append('available') #adding two extra fields for the est cost and when it's available until
+            item.append('estcost')
+            item[5] = .9*item[5]
+            item[6] = .85*item[6]
+            for x in range(len(item)): #changing the boolean values to 'yes' and 'no'
+                if item[x] == '\x01':
+                    item[x] = 'Yes'
+                elif item[x] == '\x00':
+                    item[x] = 'No'
+            item.append(vsno)
+        
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
         # The names of the arg are the same as in the rent form. 
 
-        return render_template('availability.html')
+        return render_template('availability.html', data = final)
 
 def rental_info():
         pass
