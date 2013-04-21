@@ -338,6 +338,11 @@ def admin_reports():
 
     return render_template('admin_report.html', data=data)
 
+
+#===========================================
+# EMPLOYEE FUNCTIONS
+#===========================================
+
 @app.route('/admin/loc_prefs', methods=['GET'])
 def loc_prefs():
     if not session.get('role') == 'admin':
@@ -358,11 +363,6 @@ def loc_prefs():
         return redirect(url_for('home'))
 
     return render_template('maint_history.html')
-#===========================================
-# EMPLOYEE FUNCTIONS
-#===========================================
-
-
 
 if __name__ == "__main__":
 	app.secret_key = 'sekret'
