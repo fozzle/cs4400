@@ -224,6 +224,7 @@ def availability():
                         flash("You cannot rent a car for more than two days")
                         return redirect(url_for('rent'))
         #Getting args
+        
         pickdate = request.args.get('pickdate','')
         pickhour = request.args.get('pickhour','')
         pickmin = request.args.get('','')
@@ -232,6 +233,10 @@ def availability():
         returnhour = request.args.get('returnhour','')
         returnmin = request.args.get('returnmin','')
 
+        #finding timedelta for est cost calcs
+        delta_date = int(returndate[8:10])-int(pickdate[8:10])
+        delta_hour = int(returnhour)-int(pickhour)
+        
         location = request.args.get('location','')
         model = request.args.get('model','')
         types = request.args.get('types','')
@@ -277,8 +282,6 @@ def availability():
         c.execute(sql)
         plan = c.fetchall()[0][0]
         print plan
-        if plan == "Daily Driving":
-            pass
         
         #Concatination and editing the final lists of vehicles                 
         final = a+b           
@@ -287,8 +290,15 @@ def availability():
             item.pop(0)
             item.append('available') #adding two extra fields for the est cost and when it's available until
             item.append('estcost')
-            item[5] = .9*item[5]
-            item[6] = .85*item[6]
+            item[5] = .9*item[5] #Frequent
+            item[6] = .85*item[6] #Daily
+            if plan == "Frequent Driving":
+                item[13] = item[7]*delta_date+item[5]*delta_hour
+            elif plan == "Daily Driving":
+                item[13] = item[7]*delta_date+item[6]*delta_hour
+            else:
+                item[13] = item[7]*delta_date+item[4]*delta_hour
+                                         
             for x in range(len(item)): #changing the boolean values to 'yes' and 'no'
                 if item[x] == '\x01':
                     item[x] = 'Yes'
