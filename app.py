@@ -355,15 +355,19 @@ def loc_prefs():
 def freq_users():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
-    
-    sql = ("SELECT username, COUNT(*) FROM (user NATURAL JOIN reservation) GROUP BY username")
+
+    #SQL to grab all the stuff
+    sql = ("SELECT username, COUNT(*) FROM (user NATURAL JOIN reservation) GROUP BY username ORDER BY COUNT(*) ASC")
     c.execute(sql)
     tupe = c.fetchall()
     data = list(tupe)
+    
+    #If the list of data is more than five, it shortens it down to only the top five
     try:
         data = data[0:4]
     except:
         pass
+    #This part adds in the member's plan 
     for x in range(len(data)):
         data[x] = list(data[x])
         sql = "SELECT DrivingPlan FROM member where username ='{u}'".format(u = data[x][0])
@@ -372,8 +376,6 @@ def freq_users():
         plan = tupe[0][0]
         data[x].insert(1,plan)
         
-        
-    
     print data
     
     return render_template('freq_users.html', data=data)
@@ -382,6 +384,9 @@ def freq_users():
 def maint_history():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
+    sql = ("SELECT model, date, employee, desc FROM (service_req NATURAL JOIN car ON service_req.vsn = car.vsn)")
+    c.execute(sql)
+    data = list(c.fetchall())
 
     return render_template('maint_history.html')
 
