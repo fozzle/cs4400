@@ -239,10 +239,21 @@ def availability():
         thelist = [pickdate,pickhour,pickmin,returndate,returnhour,returnmin,location,model,types]
         if types:
             sql = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and Type='{t}'".format(l = location, t = types)
-            print sql
             c.execute(sql)
             things = c.fetchall()
-            print things[0][4]*2
+            print things
+        else:
+            sql = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
+            c.execute(sql)
+            things = c.fetchall()
+            print things
+
+        sub = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car MINUS "+sql
+        print sub
+        c.execute(sub)
+        print sub
+            
+
         user= session.get('username')
         sql = "SELECT DrivingPlan FROM member WHERE Username='{u}'".format(u = user)
         c.execute(sql)
@@ -254,7 +265,7 @@ def availability():
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
         # The names of the arg are the same as in the rent form. 
 
-        return render_template('availability.html', data = things)
+        return render_template('availability.html')
 
 def rental_info():
         pass
