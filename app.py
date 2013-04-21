@@ -338,6 +338,26 @@ def admin_reports():
 
     return render_template('admin_report.html', data=data)
 
+@app.route('/admin/loc_prefs', methods=['GET'])
+def loc_prefs():
+    if not session.get('role') == 'admin':
+        return redirect(url_for('home'))
+
+    return render_template('loc_prefs.html')
+
+@app.route('/admin/freq_users', methods=['GET'])
+def loc_prefs():
+    if not session.get('role') == 'admin':
+        return redirect(url_for('home'))
+
+    return render_template('freq_users.html')
+
+@app.route('/admin/maint_history', methods=['GET'])
+def loc_prefs():
+    if not session.get('role') == 'admin':
+        return redirect(url_for('home'))
+
+    return render_template('maint_history.html')
 #===========================================
 # EMPLOYEE FUNCTIONS
 #===========================================
