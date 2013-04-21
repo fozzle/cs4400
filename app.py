@@ -223,24 +223,38 @@ def availability():
                     if delta.days > 2:
                         flash("You cannot rent a car for more than two days")
                         return redirect(url_for('rent'))
+        #Getting args
         pickdate = request.args.get('pickdate','')
         pickhour = request.args.get('pickhour','')
         pickmin = request.args.get('','')
         
         returndate = request.args.get('returndate','')
-        returnhour = request.args.get()
-        returnmin = request.args.get()
+        returnhour = request.args.get('returnhour','')
+        returnmin = request.args.get('returnmin','')
 
-        location = request.args.get()
-        model = request.args.get()
-        types = request.args.get()
+        location = request.args.get('location','')
+        model = request.args.get('model','')
+        types = request.args.get('types','')
         
-        
+        thelist = [pickdate,pickhour,pickmin,returndate,returnhour,returnmin,location,model,types]
+        if types:
+            sql = "SELECT CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and Type='{t}'".format(l = location, t = types)
+            print sql
+            c.execute(sql)
+            things = c.fetchall()
+            print things[0][4]*2
+        user= session.get('username')
+        sql = "SELECT DrivingPlan FROM member WHERE Username='{u}'".format(u = user)
+        c.execute(sql)
+        plan = c.fetchall()[0][0]
+        print plan
+        if plan == "Daily Driving":
+            pass
         
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
         # The names of the arg are the same as in the rent form. 
 
-        return render_template('availability.html')
+        return render_template('availability.html', data = things)
 
 def rental_info():
         pass
