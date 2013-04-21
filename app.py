@@ -343,23 +343,44 @@ def admin_reports():
 # EMPLOYEE FUNCTIONS
 #===========================================
 
-@app.route('/admin/loc_prefs', methods=['GET'])
+@app.route('/loc_prefs', methods=['GET'])
 def loc_prefs():
-    if not session.get('role') == 'admin':
+    if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
+    
     return render_template('loc_prefs.html')
 
-@app.route('/admin/freq_users', methods=['GET'])
-def loc_prefs():
-    if not session.get('role') == 'admin':
+@app.route('/freq_users', methods=['GET'])
+def freq_users():
+    if not session.get('role') == 'emp':
         return redirect(url_for('home'))
+    
+    sql = ("SELECT username, COUNT(*) FROM (user NATURAL JOIN reservation) GROUP BY username")
+    c.execute(sql)
+    tupe = c.fetchall()
+    data = list(tupe)
+    try:
+        data = data[0:4]
+    except:
+        pass
+    for x in range(len(data)):
+        data[x] = list(data[x])
+        sql = "SELECT DrivingPlan FROM member where username ='{u}'".format(u = data[x][0])
+        c.execute(sql)
+        tupe = c.fetchall()
+        plan = tupe[0][0]
+        data[x].insert(1,plan)
+        
+        
+    
+    print data
+    
+    return render_template('freq_users.html', data=data)
 
-    return render_template('freq_users.html')
-
-@app.route('/admin/maint_history', methods=['GET'])
-def loc_prefs():
-    if not session.get('role') == 'admin':
+@app.route('/maint_history', methods=['GET'])
+def maint_history():
+    if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
     return render_template('maint_history.html')

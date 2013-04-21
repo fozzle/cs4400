@@ -6,46 +6,24 @@
 	<table class="table">
 	<thead>
 	<tr>
-		<th>Car Model</th>
-		<th>Car Type</th>
-		<th>Location</th>
-		<th>Color</th>
-		<th>Hourly Rate (Occasional Driving Plan)</th>
-		<th>Discounted Rate (Frequent Driving Plan)</th>
-		<th>Discounted Rate (Daily Driving Plan)</th>
-		<th>Daily Rate</th>
-		<th>Seating Capacity</th>
-		<th>Transimission Type</th>
-		<th>Bluetooth Connectivity</th>
-		<th>Auxillary Cable Present</th>
-		<th>Available Till</th>
-		<th>Estimated Cost</th>
-		<th></th>
+		<th>Username</th>
+		<th>Plan</th>
+		<th>Reservations</th>
+
 
 	</tr>
 	</thead>
 	<tbody>
-	{% for (CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate10,HourlyRate15,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable, AvailableTill,EstimatedCost,vsno) in data %}
+	{% for (username, plan, reservations) in data %}
 	<tr>
-		<td>{{ CarModel }}</td>
-		<td>{{ Type }}</td>
-		<td>{{ CarLocation }}</td>
-		<td>{{ Color }}</td>
-		<td>{{ HourlyRate }}</td>
-		<td>{{ HourlyRate10 }}</td>
-		<td>{{ HourlyRate15 }}</td>
-		<td>{{ DailyRate }}</td>
-		<td>{{ Seating_Capacity }}</td>
-		<td>{{ Transmission_Type }}</td>
-		<td>{{ BluetoothConnectivity }}</td>
-		<td>{{ Auxiliary_Cable }}</td>
-		<td>{{ AvailableTill }}</td>
-		<td>{{ EstimatedCost }}</td>
-		<td><input type="radio" id="car" value={{vsno}}></td>
+		<td>{{ username }}</td>
+		<td>{{ plan }}</td>
+		<td>{{ reservations }}</td>
+
 	</tr>
 	{% endfor %}
 	</tbody>
-	<button type=submit class=btn>Sumbit</button>
+
 	</table>
 
 </form>
