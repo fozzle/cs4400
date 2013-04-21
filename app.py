@@ -191,8 +191,8 @@ def rent():
             return redirect(url_for('home'))
             
         locations = "SELECT LocationName FROM location"
-        m = "SELECT CarModel FROM car GROUP BY CarModel"
-        t = "SELECT Type FROM car GROUP BY CarModel"
+        m = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
+        t = "SELECT Distinct Type FROM car GROUP BY CarModel"
 
         c.execute(locations)
         locations = c.fetchall()
@@ -248,7 +248,6 @@ def availability():
             c.execute(sql)
             things = c.fetchall()
             sub ="SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' GROUP BY CarLocation".format(t = types)
-            print sub
             
         else:
             sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
@@ -281,7 +280,6 @@ def availability():
         sql = "SELECT DrivingPlan FROM member WHERE Username='{u}'".format(u = user)
         c.execute(sql)
         plan = c.fetchall()[0][0]
-        print plan
         
         #Concatination and editing the final lists of vehicles                 
         final = a+b           
@@ -305,7 +303,15 @@ def availability():
                 elif item[x] == '\x00':
                     item[x] = 'No'
             item.append(vsno)
-        
+
+        #Selecting what you want           
+        if request.method=="post":
+            a = request.form('car')
+            flash("you have rented a car!")
+            print a
+            return render_template('home.html')
+
+            pass
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
         # The names of the arg are the same as in the rent form. 
 
