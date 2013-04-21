@@ -192,7 +192,7 @@ def rent():
             
         locations = "SELECT LocationName FROM location"
         m = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
-        t = "SELECT Distinct Type FROM car GROUP BY CarModel"
+        t = "SELECT Distinct Type FROM car GROUP BY Type"
 
         c.execute(locations)
         locations = c.fetchall()
@@ -306,10 +306,10 @@ def availability():
 
         #Selecting what you want           
         if request.method=="post":
-            a = request.form('car')
+            a = session.form('car')
             flash("you have rented a car!")
             print a
-            return render_template('home.html')
+            return render_template('availability.html')
 
             pass
         # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
