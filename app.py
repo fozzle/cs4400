@@ -375,8 +375,6 @@ def freq_users():
         tupe = c.fetchall()
         plan = tupe[0][0]
         data[x].insert(1,plan)
-        
-    print data
     
     return render_template('freq_users.html', data=data)
 
@@ -384,9 +382,10 @@ def freq_users():
 def maint_history():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
-    sql = ("SELECT model, date, employee, desc FROM (service_req NATURAL JOIN car ON service_req.vsn = car.vsn)")
+    sql = "Select CarModel,RequestDateTime,Username,Problem From (Select VehicleSno, CarModel, RequestDateTime, Username,Problem from car NATURAL JOIN maintenance_request NATURAL JOIN maintenance_request_problems) as T Natural Join (SELECT VehicleSno, count(*) AS total FROM maintenance_request GROUP BY VehicleSno ORDER BY total ASC) as J ORDER BY total Desc"
     c.execute(sql)
     data = list(c.fetchall())
+    print data
 
     return render_template('maint_history.html')
 
