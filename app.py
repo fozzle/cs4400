@@ -365,6 +365,10 @@ def manage_cars():
     c.execute(t)
     types = c.fetchall()
 
+    models = "SELECT CarModel FROM car GROUP BY CarModel"
+    c.execute(models)
+    models = c.fetchall()
+
     
     if request.method == "POST":
         car_sql = ("INSERT INTO car(VehicleSno,Auxiliary_Cable,Transmission_Type,Seating_Capacity,BluetoothConnectivity,DailyRate,HourlyRate,Color,Type,CarModel,CarLocation) VALUES ({VehicleSno},{Auxiliary_Cable},{Transmission_Type},{Seating_Capacity},{BluetoothConnectivity},{DailyRate},{HourlyRate},'{Color}','{Type}','{CarModel}', '{CarLocation}')"
@@ -391,7 +395,7 @@ def manage_cars():
         return render_template('manage_cars.html',locations = locations, types = types)
     
     
-    return render_template('manage_cars.html',locations = locations, types = types)
+    return render_template('manage_cars.html', models = models, locations = locations, types = types)
 
 @app.route('/maint_request', methods=['GET'])
 def maint_request():
