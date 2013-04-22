@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Manage Cars{% endblock %}
+{% block title %}Rental Change{% endblock %}
 {% block content %}
 	<form action="" method="post">
 	<table width="100%" cellpadding="0" cellspacing="10" border="0">
@@ -7,7 +7,22 @@
 		<p><label>Enter Username</label><input type=text name=user></p>
 		<a>Rental Information</a>
 		<p><label>Car Model</label><input type=text name=carModel></p>
-		<p></p><label>Pick Up Date and Time</label>
+		<p></p><label>Orginal return time</label>
+			<select name=pickdate>
+				{% for (date) in dates %}
+					<option value="{{ date }}">{{ date }}</option>	
+				{% endfor %}
+			</select>
+			<select name=pickhour class="input-mini">
+				{% for x in range(0, 24) %}
+					<option value="{{ x }}">{{ x }}</option>
+				{% endfor %}
+			</select>:
+			<select name=pickmin class="input-mini">
+				<option value ="00" >:00</option>
+				<option value ="30" >:30</option>
+			</select>
+		<p></p><label>New arrival time</label>
 			<select name=pickdate>
 				{% for (date) in dates %}
 					<option value="{{ date }}">{{ date }}</option>	
