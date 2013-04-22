@@ -4,37 +4,77 @@
 	<form action="" method="post">
 	<table width="100%" cellpadding="0" cellspacing="10" border="0">
 		<td width="50%" valign="top">
-		<p><label>Enter Username</label><input type=text name=user></p>
-		<a>Rental Information</a>
-		<p><label>Car Model</label><input type=text name=carModel></p>
-		<p></p><label>Orginal return time</label>
-			<select name=pickdate>
-				{% for (date) in dates %}
-					<option value="{{ date }}">{{ date }}</option>	
-				{% endfor %}
-			</select>
-			<select name=pickhour class="input-mini">
-				{% for x in range(0, 24) %}
-					<option value="{{ x }}">{{ x }}</option>
-				{% endfor %}
-			</select>:
-			<select name=pickmin class="input-mini">
-				<option value ="00" >:00</option>
-				<option value ="30" >:30</option>
-			</select>
-		<p></p><label>New arrival time</label>
-			<select name=pickdate>
-				{% for (date) in dates %}
-					<option value="{{ date }}">{{ date }}</option>	
-				{% endfor %}
-			</select>
-			<select name=pickhour class="input-mini">
-				{% for x in range(0, 24) %}
-					<option value="{{ x }}">{{ x }}</option>
-				{% endfor %}
-			</select>:
-			<select name=pickmin class="input-mini">
-				<option value ="00" >:00</option>
-				<option value ="30" >:30</option>
-			</select>
+			<p><label>Enter Username</label><input type=text name=user></p>
+			<a>Rental Information</a>
+			<p><label>Car Model</label><input type=text name=carModel></p>
+			<p><label>Orginal return time</label>
+				<select name=pickdate>
+					{% for (date) in dates %}
+						<option value="{{ date }}">{{ date }}</option>	
+					{% endfor %}
+				</select>
+				<select name=pickhour class="input-mini">
+					{% for x in range(0, 24) %}
+						<option value="{{ x }}">{{ x }}</option>
+					{% endfor %}
+				</select>:
+				<select name=pickmin class="input-mini">
+					<option value ="00" >:00</option>
+					<option value ="30" >:30</option>
+				</select>
+			<p><label>New arrival time</label>
+				<select name=pickdate>
+					{% for (date) in dates %}
+						<option value="{{ date }}">{{ date }}</option>	
+					{% endfor %}
+				</select>
+				<select name=pickhour class="input-mini">
+					{% for x in range(0, 24) %}
+						<option value="{{ x }}">{{ x }}</option>
+					{% endfor %}
+				</select>:
+				<select name=pickmin class="input-mini">
+					<option value ="00" >:00</option>
+					<option value ="30" >:30</option>
+				</select>
+			<p><button type=submit class=btn>Update</button>
+		</td>
+		<td width="50%" valign="top">
+			<a>User Affected</a>
+			<p><label>Username :</label><input type=text name=userAffected></p>
+			<p><label>Orginal pick up time :</label>
+				<select name=pickdate>
+					{% for (date) in dates %}
+						<option value="{{ date }}">{{ date }}</option>	
+					{% endfor %}
+				</select>
+				<select name=pickhour class="input-mini">
+					{% for x in range(0, 24) %}
+						<option value="{{ x }}">{{ x }}</option>
+					{% endfor %}
+				</select>:
+				<select name=pickmin class="input-mini">
+					<option value ="00" >:00</option>
+					<option value ="30" >:30</option>
+				</select>
+			<p><label>Orginal return time :</label>
+				<select name=pickdate>
+					{% for (date) in dates %}
+						<option value="{{ date }}">{{ date }}</option>	
+					{% endfor %}
+				</select>
+				<select name=pickhour class="input-mini">
+					{% for x in range(0, 24) %}
+						<option value="{{ x }}">{{ x }}</option>
+					{% endfor %}
+				</select>:
+				<select name=pickmin class="input-mini">
+					<option value ="00" >:00</option>
+					<option value ="30" >:30</option>
+				</select>
+			<p><label>Email Address :</label><input type=text name=email></p>
+			<p><label>Phone No. :</label><input type=text name=phone></p>
+			<p><td><button type=submit class=btn>Cancel Reservation</button></td>
+				<td><button type=submit class=btn>Show car availability</button></td>
+		</td>
 {% endblock %}
