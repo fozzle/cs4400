@@ -1,0 +1,37 @@
+@app.route('/employee/maintenance', method=['GET','POST'])
+def maintenance_request():
+    
+    locations = 'SELECT LocationName FROM location'
+    model = 'SELECT CarModel FROM car GROUP BY CarModel'
+    problem = 'SELECT Problem From maintenance_request_problems GROUP BY Problem'
+    c.execute(locations)
+    a = c.fetchall()
+    locations = []
+    models = []
+    problems = []
+
+    for items in a:
+        location.append(items[0])
+        
+    locations = c.fetchall()
+
+    c.execute(model)
+    models = c.fetchall()
+    c.execute(problem)
+    problems = c.fetchall()
+
+    if request.method == 'POST':
+        if request.form['menu'] == '2':
+        loc = request.form['location']
+        ind = locations.index(loc)
+        locations.pop(ind)
+        locations.insert(0,loc)
+        m = "SELECT CarModel FROM car WHERE CarLocation = '{place}'".format(place=loc)
+        c.execute(m)
+        a= c.fetchall()
+        setloc = [loc]
+        for items in a:
+            models.append(item[0])
+        return render_template('maintenance_request.html', models=models,data=locations,
+
+
