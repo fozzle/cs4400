@@ -343,6 +343,31 @@ def admin_reports():
 # EMPLOYEE FUNCTIONS
 #===========================================
 
+@app.route('/manage_cars', methods=['GET'])
+def manage_cars():
+    if not session.get('role') == 'emp':
+        return redirect(url_for('home'))
+
+    
+    return render_template('manage_cars.html')
+
+@app.route('/maint_request', methods=['GET'])
+def maint_request():
+    if not session.get('role') == 'emp':
+        return redirect(url_for('home'))
+
+    
+    return render_template('maint_request.html')
+
+
+@app.route('/rental_change', methods=['GET'])
+def rental_change():
+    if not session.get('role') == 'emp':
+        return redirect(url_for('home'))
+
+    
+    return render_template('rental_change.html')
+
 @app.route('/loc_prefs', methods=['GET'])
 def loc_prefs():
     if not session.get('role') == 'emp':
