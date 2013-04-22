@@ -387,7 +387,7 @@ def maint_history():
     data = list(c.fetchall())
     print data
 
-    return render_template('maint_history.html')
+    return render_template('maint_history.html', data = data)
 
 if __name__ == "__main__":
 	app.secret_key = 'sekret'
