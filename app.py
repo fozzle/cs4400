@@ -343,13 +343,47 @@ def admin_reports():
 # EMPLOYEE FUNCTIONS
 #===========================================
 
-@app.route('/manage_cars', methods=['GET'])
+@app.route('/manage_cars', methods=['GET', 'POST'])
 def manage_cars():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
+    locations = "SELECT LocationName FROM location"
+    c.execute(locations)
+    locations = c.fetchall()
+
+    t = "SELECT Distinct Type FROM car GROUP BY Type"
+    c.execute(t)
+    types = c.fetchall()
+
     
-    return render_template('manage_cars.html')
+    if request.method == "POST":
+        car_sql = ("INSERT INTO car(VehicleSno,Auxiliary_Cable,Transmission_Type,Seating_Capacity,BluetoothConnectivity,DailyRate,HourlyRate,Color,Type,CarModel,CarLocation) VALUES ({VehicleSno},{Auxiliary_Cable},{Transmission_Type},{Seating_Capacity},{BluetoothConnectivity},{DailyRate},{HourlyRate},'{Color}','{Type}','{CarModel}', '{CarLocation}')"
+                   .format(VehicleSno=request.form['vsno'],
+                            Auxiliary_Cable=request.form['aux'],
+                            Transmission_Type=request.form['trans'],
+                            Seating_Capacity=request.form['seat'],
+                            BluetoothConnectivity=request.form['blue'],
+                            DailyRate=request.form['daily'],
+                            HourlyRate=request.form['hr'],
+                            Color=request.form['color'],
+                            Type=request.form['type'],
+                            CarModel=request.form['model'],
+                            CarLocation=request.form['location'],))
+        print car_sql
+        try:
+            c.execute(car_sql)
+            c.commit()
+        except pymysql.err.IntegrityError:
+            flash("IntegrityError!", 'alert-error')
+
+        
+
+
+        return render_template('manage_cars.html',locations = locations, types = types)
+
+    
+    return render_template('manage_cars.html',locations = locations, types = types)
 
 @app.route('/maint_request', methods=['GET'])
 def maint_request():

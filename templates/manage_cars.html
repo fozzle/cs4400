@@ -2,9 +2,39 @@
 {% block title %}Manage Cars{% endblock %}
 {% block content %}
 	<form action="" method="post">
-		<p><label>Username</label><input type=text name=username>
-		<p><label>Password</label><input type=password name=password>
-		<p><button type=submit class=btn>Login</button>
+		<p><label>Vehicle Sno :</label><input type=text name=vsno>
+		<p><label>Car Model :</label><input type=text name=model>
+		<p><label>Car Type :</label>
+			<select name=location>
+			{% for (types) in types %}
+				<option value="{{ types[0] }}">{{ types[0] }}</option>	
+			{% endfor %}
+			</select>
+		<p><label>Location :</label>
+			<select name=type>
+			{% for (loc) in locations %}
+				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
+			{% endfor %}
+			</select>
+		<p><label>Color :</label><input type=text name=color>
+		<p><label>Hourly Rate :</label><input type=text name=hr>
+		<p><label>Daily Rate :</label><input type=text name=daily>
+		<p><label>Seating Capacity :</label><input type=text name=seat>
+		<p><label> Transmission Type :</label>
+			<select name=trans>
+			<option value ="0">Automatic</option>
+			<option value ="1">Manual</option>
+			</select>
+		<p><label>Bluetooth Connectivity :</label>
+			<select name=blue>
+			<option value ="0">No</option>
+			<option value ="1">Yes</option>
+			</select>
+		<p><label>Auxillary Cable :</label>
+			<select name=aux>
+			<option value ="0">No</option>
+			<option value ="1">Yes</option>
+			</select>
+	<p><button type=submit class=btn>Sumbit</button>
 	</form>
-	<a href="{{ url_for('register') }}">New User?</a>
 {% endblock %}
