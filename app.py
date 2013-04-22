@@ -341,7 +341,7 @@ def admin_reports():
 
     sql = ("SELECT car.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` "
             "WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() "
-            "GROUP BY VehicleSno ORDER BY Types")
+            "GROUP BY VehicleSno ORDER BY Type")
     c.execute(sql)
     data = c.fetchall()
 
