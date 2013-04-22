@@ -324,9 +324,10 @@ def rental_info():
     user= session.get('username')
     sql = "SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus FROM reservation Natural Join car WHERE Username='{u}'".format(u = user)
     c.execute(sql)
-    data = c.fetchall()[0][0]
+    data2 = list(c.fetchall())
+    print data2
 
-    return render_template('rental_info.html')
+    return render_template('rental_info.html',data2= data2)
 
 
 #===========================================
