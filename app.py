@@ -401,18 +401,28 @@ def manage_cars():
 def maint_request():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
+        
+    locations = "SELECT LocationName FROM location"
+    c.execute(locations)
+    locations = c.fetchall()
+    
+    carmodel = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
+    c.execute(carmodel)
+    carmodels = c.fetchall()
 
     
-    return render_template('maint_request.html')
+    return render_template('maint_request.html', carmodels = carmodels, locations = locations)
 
 
 @app.route('/rental_change', methods=['GET'])
 def rental_change():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
+        
+    dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
 
     
-    return render_template('rental_change.html')
+    return render_template('rental_change.html', dates = dates)
 
 @app.route('/loc_prefs', methods=['GET'])
 def loc_prefs():
