@@ -2,7 +2,7 @@ from flask import (Flask, session, redirect, url_for,
 	request, render_template, flash)
 import pymysql
 import os
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 app = Flask(__name__)
 
 conn = pymysql.connect(host='localhost', 
@@ -212,98 +212,59 @@ def availability():
 
         if session['role'] != 'member':
             return redirect(url_for('home'))
-
-        # If this came from the rent form... (it should have)
-        if request.args.get('pickdate', '') and request.args.get('returndate', ''):
-                    pickdate = request.args.get('pickdate', '')
-                    returndate = request.args.get('returndate', '')
-                    delta = date(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10])) - date(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]))
-
-                    #making sure the date is less than two
-                    if delta.days > 2:
-                        flash("You cannot rent a car for more than two days")
-                        return redirect(url_for('rent'))
+                    
         #Getting args
-        
         pickdate = request.args.get('pickdate','')
         pickhour = request.args.get('pickhour','')
-        pickmin = request.args.get('','')
+        pickmin = request.args.get('pickmin','')
         
         returndate = request.args.get('returndate','')
         returnhour = request.args.get('returnhour','')
         returnmin = request.args.get('returnmin','')
 
-        #finding timedelta for est cost calcs
-        delta_date = int(returndate[8:10])-int(pickdate[8:10])
-        delta_hour = int(returnhour)-int(pickhour)
-        
         location = request.args.get('location','')
         model = request.args.get('model','')
-        types = request.args.get('types','')
+        car_type = request.args.get('types','')
+
+        delta = datetime(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10]), int(returnhour), int(returnmin)) - datetime(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
+        
+        #making sure the date is less than two
+        if delta.days > 2:
+            flash("You cannot rent a car for more than two days")
+            return redirect(url_for('rent'))
+
+        
         
         #Setting the sql for the table
-        if types:
-            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and Type='{t}'".format(l = location, t = types)
+        if car_type:
+            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' AND Type='{t}'".format(l = location, t = car_type)
+            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' AND CarLocation != '{l}' ORDER BY CarLocation".format(l=location, t = car_type)
             
-            c.execute(sql)
-            things = c.fetchall()
-            sub ="SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' GROUP BY CarLocation".format(t = types)
+            
+        elif model:
+            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
+            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' AND CarLocation != '{l}' ORDER BY BY CarLocation".format(l=location, m = model)
             
         else:
-            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
-            c.execute(sql)
-            things = c.fetchall()
-            sub = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,HourlyRate,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' GROUP BY CarLocation".format(m = model)
+            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' ORDER BY CarLocation".format(l=location)
+            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation != '{l}' ORDER BY BY CarLocation".format(l=location)
 
-        c.execute(sub)
-        extra = c.fetchall()
-        #sorting the tuples into a list so i can mess around with their innards
-        final = []
-        a = []
-        b = []
-        for item in things:
-            a.append(list(item))        
-        for item in extra:
-            b.append(list(item))
-
-        #Checking for duplicate entries in the sql based off their VehicleSno
-        for x in range(len(a)):
-            for y in range(len(b)):
-                try:
-                    if a[x][0] == b[y][0]:
-                        b.pop(y)
-                except:
-                    pass
+        c.execute(sql)
+        cars = c.fetchall()
 
         #Getting the user's plan info so I can make an estimate of the cost
         user= session.get('username')
-        sql = "SELECT DrivingPlan FROM member WHERE Username='{u}'".format(u = user)
-        c.execute(sql)
-        plan = c.fetchall()[0][0]
-        
-        #Concatination and editing the final lists of vehicles                 
-        final = a+b           
-        for item in final:
-            vsno = item[0] #i'm keeping the vsno around so that maybe we can use it as the value of the select button so it will make the insertion into the rental sql easier? maybe?
-            item.pop(0)
-            item.append('available') #adding two extra fields for the est cost and when it's available until
-            item.append('estcost')
-            item[5] = .9*item[5] #Frequent
-            item[6] = .85*item[6] #Daily
-            if plan == "Frequent Driving":
-                item[13] = item[7]*delta_date+item[5]*delta_hour
-            elif plan == "Daily Driving":
-                item[13] = item[7]*delta_date+item[6]*delta_hour
-            else:
-                item[13] = item[7]*delta_date+item[4]*delta_hour
-                                         
-            for x in range(len(item)): #changing the boolean values to 'yes' and 'no'
-                if item[x] == '\x01':
-                    item[x] = 'Yes'
-                elif item[x] == '\x00':
-                    item[x] = 'No'
-            item.append(vsno)
+        sql = "SELECT Discount FROM drivingplan JOIN member ON member.DrivingPlan = drivingplan.Type WHERE Username='{u}'".format(u = user)
 
+        c.execute(sql)
+        discount = c.fetchone()[0]
+        if discount:
+            discount = (100.0 - discount)/100.0
+        else:
+            discount = 1
+
+        print "Hours is " + str(delta.seconds/3600)
+            
         #Selecting what you want           
         if request.method=="post":
             a = session.form('car')
@@ -311,11 +272,7 @@ def availability():
             print a
             return render_template('availability.html')
 
-            pass
-        # Get arguments like date and stuff to build your query from request.args.get('nameofarg', '')
-        # The names of the arg are the same as in the rent form. 
-
-        return render_template('availability.html', data = final)
+        return render_template('availability.html', cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days)
 
 @app.route('/rental_info', methods=['GET','POST'])
 def rental_info():
