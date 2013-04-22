@@ -2,40 +2,46 @@
 {% block title %}Manage Cars{% endblock %}
 {% block content %}
 	<form action="" method="post">
-		<p><label>Vehicle Sno :</label><input type=text name=vsno>
-		<p><label>Car Model :</label><input type=text name=model>
-		<p><label>Car Type :</label>
-			<select name=type>
-			{% for (types) in types %}
-				<option value="{{ types[0] }}">{{ types[0] }}</option>	
-			{% endfor %}
-			</select>
-		<p><label>Location :</label>
-			<select name=location>
-			{% for (loc) in locations %}
-				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
-			{% endfor %}
-			</select>
-		<p><label>Color :</label><input type=text name=color>
-		<p><label>Hourly Rate :</label><input type=text name=hr>
-		<p><label>Daily Rate :</label><input type=text name=daily>
-		<p><label>Seating Capacity :</label><input type=text name=seat>
-		<p><label> Transmission Type :</label>
-			<select name=trans>
-			<option value ="0">Automatic</option>
-			<option value ="1">Manual</option>
-			</select>
-		<p><label>Bluetooth Connectivity :</label>
-			<select name=blue>
-			<option value ="0">No</option>
-			<option value ="1">Yes</option>
-			</select>
-		<p><label>Auxillary Cable :</label>
-			<select name=aux>
-			<option value ="0">No</option>
-			<option value ="1">Yes</option>
-			</select>
-	<p><button type=submit class=btn>Sumbit</button>
+	<table width="100%" cellpadding="0" cellspacing="10" border="0">
+		<td width="50%" valign="top">
+			<p><label>Vehicle Sno :</label><input type=text name=vsno>
+			<p><label>Car Model :</label><input type=text name=model>
+			<p><label>Car Type :</label>
+				<select name=type>
+				{% for (types) in types %}
+					<option value="{{ types[0] }}">{{ types[0] }}</option>	
+				{% endfor %}
+				</select>
+			<p><label>Location :</label>
+				<select name=location>
+				{% for (loc) in locations %}
+					<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
+				{% endfor %}
+				</select>
+			<p><label>Color :</label><input type=text name=color>
+			<p><label>Hourly Rate :</label><input type=text name=hr>
+			<p><label>Daily Rate :</label><input type=text name=daily>
+			<p><label>Seating Capacity :</label><input type=text name=seat>
+			<p><label> Transmission Type :</label>
+				<select name=trans>
+				<option value ="0">Automatic</option>
+				<option value ="1">Manual</option>
+				</select>
+			<p><label>Bluetooth Connectivity :</label>
+				<select name=blue>
+				<option value ="0">No</option>
+				<option value ="1">Yes</option>
+				</select>
+			<p><label>Auxillary Cable :</label>
+				<select name=aux>
+				<option value ="0">No</option>
+				<option value ="1">Yes</option>
+				</select>
+			<p><button type=submit class=btn>Sumbit</button>
+		</td>
+           	<td width="50%" valign="top">
+               		<p> i hope this works </p>
+           	</td>
 
 	</form>
 
