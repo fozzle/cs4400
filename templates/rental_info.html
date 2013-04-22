@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Rental Info{% endblock %}
+<form action= "" method="post">
+
+{% block content %}
+	<table class="table">
+	<thead>
+	<tr>
+		<th>Date</th>
+		<th>Reservation Time</th>
+		<th>Car</th>
+		<th>Location</th>
+		<th>Amount</th>
+		<th>Extend?</th>
+
+	</tr>
+	</thead>
+	<tbody>
+	{% for (car,res_time,car,location,amount) in data %}
+	<tr>
+		<td>{{ Date }}</td>
+		<td>{{ res_time }}</td>
+		<td>{{ car }}</td>
+		<td>{{ location }}</td>
+		<td>{{ amount }}</td>
+
+
+	</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+	<p><button type=submit class=btn>Sumbit</button>
+
+	<table class="table2">
+	<thead>
+	<tr>
+		<th>Date</th>
+		<th>Reservation Time</th>
+		<th>Car</th>
+		<th>Location</th>
+		<th>Amount</th>
+		<th>Return Status</th>
+
+	</tr>
+	</thead>
+	<tbody>
+	{% for (pick_time, ret_time,car,location,amount,ret_stat) in data2 %}
+	<tr>
+		<td>{{ pick_time }}</td>
+		<td>{{ ret_time }}</td>
+		<td>{{ car }}</td>
+		<td>{{ location }}</td>
+		<td>{{ amount }}</td>
+		<td>{{ ret_stat }}</td>
+
+</form>
+	</tr>
+	{% endfor %}
+	</tbody>
+	</table>
+
+{% endblock %}

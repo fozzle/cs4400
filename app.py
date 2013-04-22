@@ -317,8 +317,16 @@ def availability():
 
         return render_template('availability.html', data = final)
 
+@app.route('/rental_info', methods=['GET','POST'])
 def rental_info():
-        pass
+    if not session.get('role') == 'member':
+        return redirect(url_for('home'))
+    user= session.get('username')
+    sql = "SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus FROM reservation Natural Join car WHERE Username='{u}'".format(u = user)
+    c.execute(sql)
+    data = c.fetchall()[0][0]
+
+    return render_template('rental_info.html')
 
 
 #===========================================
@@ -380,7 +388,7 @@ def manage_cars():
 
         
         return render_template('manage_cars.html',locations = locations, types = types)
-
+    
     
     return render_template('manage_cars.html',locations = locations, types = types)
 
