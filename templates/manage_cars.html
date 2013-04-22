@@ -47,9 +47,10 @@
                			{% endfor %}
                			</select>
                		<p><label>Choose car :</label>
-               			<select name=CarModel>
-               			{% for (model) in CarModel}
-               				<option value='{{model[0]}}'>{{model[0]}}</option>
+               			<select name=locations>
+               			{% for (loc) in locations %}
+               				<option value="{{loc[0]}}">{{loc[0]}}</option>
+               			{% endfor %}
                			</select>
                		
            	</td>
