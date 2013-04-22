@@ -1,21 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Manage Cars{% endblock %}
 {% block content %}
-	<script>
-		var showHide = function(selector) {
-			var models = document.getElementById("models");
-			var types = document.getElementById("types");
-			
-			if (selector.options[selector.selectedIndex].value === 'models') {
-				models.style.display = 'block';
-				types.style.display = 'none';
-			}
-			else {
-				types.style.display = 'block';
-				models.style.display = 'none';
-			}
-		}
-	</script>
+	
 	<form action="" method="post">
 	<table width="100%" cellpadding="0" cellspacing="10" border="0">
 		<td width="50%" valign="top">
@@ -67,7 +53,17 @@
 					<option value="{{carmodel[0]}}">{{carmodel[0]}}</option>	
 				{% endfor %}
 				</select>
-               		<p><label>Car Type :</label></p>
+               		<p><label>Car Type :</label><input type=text name=carType>
+               		<p><label>Color :</label><input type=text name=color></p>
+               		<p><label>Seating Capacity :</label><input type=text name=seatCap></p>
+               		<p><label>Transmission Type :</label><input type=text name=transType></p>
+               		<p><label>Choose current location :</label>
+               			<select name=locations>
+               			{% for (loc) in locations %}
+               				<option value="{{loc[0]}}">{{loc[0]}}</option>
+               			{% endfor %}
+               			</select>
+               		
                		
            	</td>
 
