@@ -212,6 +212,14 @@ def availability():
 
         if session['role'] != 'member':
             return redirect(url_for('home'))
+
+        #Selecting what you want           
+        if request.method == 'POST':
+
+            a = request.form['car']
+            flash("you have rented a car!")
+
+            return redirect(url_for('home'))
                     
         #Getting args
         pickdate = request.args.get('pickdate','')
@@ -238,17 +246,18 @@ def availability():
         #Setting the sql for the table
         if car_type:
             sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' AND Type='{t}'".format(l = location, t = car_type)
-            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' AND CarLocation != '{l}' ORDER BY CarLocation".format(l=location, t = car_type)
+            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' AND CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location, t = car_type)
             
             
         elif model:
-            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}'".format(l = location, m = model)
-            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' AND CarLocation != '{l}' ORDER BY BY CarLocation".format(l=location, m = model)
+            sql = "SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}') desired_location".format(l = location, m = model)
+            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' AND CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location, m = model)
             
         else:
-            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' ORDER BY CarLocation".format(l=location)
-            sql += " UNION SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation != '{l}' ORDER BY BY CarLocation".format(l=location)
+            sql = "SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}') desired_location ".format(l=location)
+            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location)
 
+        print sql
         c.execute(sql)
         cars = c.fetchall()
 
@@ -262,15 +271,6 @@ def availability():
             discount = (100.0 - discount)/100.0
         else:
             discount = 1
-
-        print "Hours is " + str(delta.seconds/3600)
-            
-        #Selecting what you want           
-        if request.method=="post":
-            a = session.form('car')
-            flash("you have rented a car!")
-            print a
-            return render_template('availability.html')
 
         return render_template('availability.html', cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days)
 

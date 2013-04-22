@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Car Availability{% endblock %}
-<form action= "" method="post">
-
 {% block content %}
+<form action="/availability" method="post">
 	<table class="table">
 	<thead>
 	<tr>
@@ -41,12 +40,11 @@
 		<td>{% if Auxiliary_Cable %}Yes{% else %}No{% endif%}</td>
 		<td>{{ AvailableTill }}</td>
 		<td>{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}</td>
-		<td><input type="radio" id="car" value={{vsno}}></td>
+		<td><input type="radio" id="car" value="{{vsno}}"></td>
 	</tr>
 	{% endfor %}
 	</tbody>
-	<button type=submit class=btn>Sumbit</button>
 	</table>
-
+	<button type=submit class=btn>Rent</button>
 </form>
 {% endblock %}
