@@ -5,13 +5,13 @@
 		<p><label>Vehicle Sno :</label><input type=text name=vsno>
 		<p><label>Car Model :</label><input type=text name=model>
 		<p><label>Car Type :</label>
-			<select name=location>
+			<select name=type>
 			{% for (types) in types %}
 				<option value="{{ types[0] }}">{{ types[0] }}</option>	
 			{% endfor %}
 			</select>
 		<p><label>Location :</label>
-			<select name=type>
+			<select name=location>
 			{% for (loc) in locations %}
 				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
 			{% endfor %}

@@ -332,7 +332,7 @@ def admin_reports():
 
     sql = ("SELECT car.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` "
             "WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() "
-            "GROUP BY VehicleSno ORDER BY Type")
+            "GROUP BY VehicleSno ORDER BY Types")
     c.execute(sql)
     data = c.fetchall()
 
@@ -373,13 +373,12 @@ def manage_cars():
         print car_sql
         try:
             c.execute(car_sql)
-            c.commit()
+            conn.commit()
+            flash('Car Inserted!')
         except pymysql.err.IntegrityError:
             flash("IntegrityError!", 'alert-error')
 
         
-
-
         return render_template('manage_cars.html',locations = locations, types = types)
 
     
