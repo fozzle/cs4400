@@ -61,13 +61,15 @@
                				<option value="{{loc[0]}}">{{loc[0]}}</option>
                			{% endfor %}
                			</select>
-               		<label>Models</label>
+               		<div id="models">
+			<label>Models</label>
 				<select name=model>
-				<option value=""></option>
+					<option value=""></option>
 				{% for (carmodel) in models %}
 					<option value="{{ carmodel[0] }}">{{ carmodel[0] }}</option>	
 				{% endfor %}
 				</select>
+			</div>
                		<p><label>Car Type :</label></p>
                		
            	</td>
