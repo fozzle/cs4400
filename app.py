@@ -533,7 +533,8 @@ def rental_change():
         return redirect(url_for('home'))
         
     dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
-
+    rental_info= "SELECT car.CarModel , car.CarLocation, reservation.PickUpDateTime FROM car INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno WHERE reservation.Username = 'user' AND reservation.PickUpDateTime<now() AND reservation.ReturnDateTime>now()".format('user'=request.form['user'])
+    #rental_info selects the data needed to auto populate the text boxes
     
     return render_template('rental_change.html', dates = dates)
 
