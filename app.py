@@ -303,16 +303,58 @@ def rental_info():
 
     dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
     if request.method == 'POST':
-        # Make sure no collision with reservation extension, and extend
-        pass
+
+        if not request.form.get('extend'):
+            flash('You must select a reservation to modify')
+            return redirect(url_for('rental_info'))
+
+        extenddate = request.form['extenddate']
+        extendhour = request.form['extendhour']
+        extendmin = request.form['extendmin']
+        resid = request.form['extend']
+
+        extenddatetime = datetime(int(extenddate[0:4]), int(extenddate[5:7]), int(extenddate[8:10]), int(extendhour), int(extendmin))
+        
+        sql = """SELECT ReturnDateTime, VehicleSno FROM reservation WHERE ResID={resid}""".format(resid=resid)
+
+        c.execute(sql)
+        curr_res = c.fetchone()
+        if curr_res[0] > extenddatetime:
+            flash('To extend you must choose a time past your current return time', 'alert-error')
+            return redirect(url_for('rental_info'))
+
+        vsn = curr_res[1]
+
+        sql = """SELECT PickUpDateTime FROM reservation 
+                WHERE VehicleSno={vsn} AND PickUpDateTime < '{extend}' 
+                AND PickUpDateTime > '{orig_return}'""".format(vsn=vsn, 
+                                                                extend=extenddatetime.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                orig_return=curr_res[0].strftime('%Y-%m-%d %H:%M:%S'))
+
+        c.execute(sql)
+        collision = c.fetchall()
+        if collision:
+            flash('Someone else has already reserved that car at {date}'.format(date=collision[0][0]), 'alert-error')
+
+        sql = """INSERT INTO reservation_extended_time 
+                VALUES ({resid}, '{extend}')""".format(resid=resid, extend=extenddatetime.strftime('%Y-%m-%d %H:%M:%S'))
+        c.execute(sql)
+        conn.commit()
+
+        flash('Reservation successfully extended!', 'alert-success')
+        return redirect(url_for('rental_info'))
+
+
 
     user= session.get('username')
-    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus 
-            FROM reservation Natural Join car WHERE Username='{u}'""".format(u = user)
+    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus, Extended_Time 
+            FROM reservation Natural Join car NATURAL JOIN reservation_extended_time 
+            WHERE Username='{u}'""".format(u = user)
+            
     c.execute(sql)
     all_res = c.fetchall()
     
-    sql = """SELECT reservation.VehicleSno, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus 
+    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus 
             FROM reservation NATURAL JOIN car 
             WHERE Username='{u}' AND PickUpDateTime < NOW() AND ReturnDateTime > NOW()""".format(u = user)
     c.execute(sql)

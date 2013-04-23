@@ -17,14 +17,14 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for (vsn, pick_time, ret_time, car, location, amount, ret_stat) in current %}
+	{% for (resid, pick_time, ret_time, car, location, amount, ret_stat) in current %}
 	<tr>
 		<td>{{ pick_time }}</td>
 		<td>{{ ret_time }}</td>
 		<td>{{ car }}</td>
 		<td>{{ location }}</td>
 		<td>{{ amount }}</td>
-		<td><input type="radio" name="extend" value="{{ vsn }}"></td>
+		<td><input type="radio" name="extend" value="{{ resid }}"></td>
 	</tr>
 	{% endfor %}
 	</tbody>
