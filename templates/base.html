@@ -37,6 +37,7 @@
           {% elif session['role'] == 'emp' %}
           <li><a href="{{ url_for('manage_cars') }}">Manage Cars</a></li>
           <li><a href="{{ url_for('maint_request') }}">Maintenance Request</a></li>
+          <li><a href="{{ url_for('rental_change') }}">Rental Change Request</a></li>
           <li><a href="{{ url_for('loc_prefs') }}">Location Pref Report</a></li>
           <li><a href="{{ url_for('freq_users') }}">Frequent User Report</a></li>
           <li><a href="{{ url_for('maint_history') }}">Maintenance History Report</a></li>

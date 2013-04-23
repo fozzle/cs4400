@@ -222,6 +222,7 @@ def availability():
         
                     
         #Getting args
+        
         pickdate = request.args.get('pickdate','')
         pickhour = request.args.get('pickhour','')
         pickmin = request.args.get('pickmin','')
