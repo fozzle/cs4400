@@ -392,6 +392,8 @@ def loc_prefs():
               WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3
               GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation
             ) as thing GROUP BY mon_name"""
+    
+    c.execute(sql)
 
     return render_template('loc_prefs.html')
 
