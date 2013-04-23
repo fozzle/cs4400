@@ -534,7 +534,17 @@ def rental_change():
         
     dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
 
+    pickdate = request.form['pickdate']
+    pickhour = request.form['pickhour']
+    pickmin = request.form['pickmin']
     
+    pickdatetime = datetime(int(pickdate[0:4]), int(picksdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
+
+    dates = []
+    
+    rental_info= "SELECT car.CarModel , car.CarLocation, reservation.PickUpDateTime FROM car INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno WHERE reservation.Username = 'user' AND reservation.PickUpDateTime<now() AND reservation.ReturnDateTime>now()".format('user'=request.form['user'])
+    #rental_info selects the data needed to auto populate the text boxes
+
     return render_template('rental_change.html', dates = dates)
 
 @app.route('/loc_prefs', methods=['GET'])
@@ -559,7 +569,7 @@ def freq_users():
         return redirect(url_for('home'))
 
     #SQL to grab all the stuff
-    sql = ("SELECT username, COUNT(*) FROM (user NATURAL JOIN reservation) GROUP BY username ORDER BY COUNT(*) ASC")
+    sql = ("SELECT username, COUNT(*) FROM (user NATURAL JOIN reservation) GROUP BY username ORDER BY COUNT(*) DESC")
     c.execute(sql)
     tupe = c.fetchall()
     data = list(tupe)
