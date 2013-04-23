@@ -347,15 +347,15 @@ def rental_info():
 
 
     user= session.get('username')
-    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus, Extended_Time 
+    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost, ReturnStatus, Extended_Time 
             FROM reservation Natural Join car NATURAL JOIN reservation_extended_time 
             WHERE Username='{u}'""".format(u = user)
-            
+
     c.execute(sql)
     all_res = c.fetchall()
     
-    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus 
-            FROM reservation NATURAL JOIN car 
+    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus, Extended_Time 
+            FROM reservation NATURAL JOIN car NATURAL JOIN reservation_extended_time
             WHERE Username='{u}' AND PickUpDateTime < NOW() AND ReturnDateTime > NOW()""".format(u = user)
     c.execute(sql)
     current = c.fetchall()
