@@ -10,8 +10,8 @@
 			</select>
 		<label>Choose car :</label>
 			<select name=model>
-			{% for (carmodel) in carmodels %}
-				<option value="{{carmodel[0]}}">{{carmodel[0]}}</option>	
+			{% for (model) in models %}
+				<option value="{{model[0]}}">{{ model[0] }}</option>	
 			{% endfor %}
 			</select>
 		<label>Brief Description of Problem :</label><textarea name="problems" maxlength='45'>
