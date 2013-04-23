@@ -542,6 +542,9 @@ def rental_change():
 
     dates = []
     
+    rental_info= "SELECT car.CarModel , car.CarLocation, reservation.PickUpDateTime FROM car INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno WHERE reservation.Username = 'user' AND reservation.PickUpDateTime<now() AND reservation.ReturnDateTime>now()".format('user'=request.form['user'])
+    #rental_info selects the data needed to auto populate the text boxes
+
     return render_template('rental_change.html', dates = dates)
 
 @app.route('/loc_prefs', methods=['GET'])
