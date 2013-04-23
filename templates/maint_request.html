@@ -2,18 +2,20 @@
 {% block title %}Maintenance Request{% endblock %}
 {% block content %}
 	<form action="" method="post">
-		<p><label>Choose location :</label>
-			<select name=location>
-			{% for (loc) in locations %}
-				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
-			{% endfor %}
-			</select>
-		<label>Choose car :</label>
+		<p><label>Choose car :</label>
 			<select name=model>
 			{% for (model) in models %}
 				<option value="{{model[0]}}">{{ model[0] }}</option>	
 			{% endfor %}
 			</select>
+		
+		<label>Choose location :</label>
+			<select name=location>
+			{% for (loc) in locations %}
+				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
+			{% endfor %}
+			</select>
+		
 		<label>Brief Description of Problem :</label><textarea name="problems" maxlength='45'>
 		</textarea><br>
 		<p><button type=submit class=btn>Sumbit Request</button>
