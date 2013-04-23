@@ -347,15 +347,15 @@ def rental_info():
 
 
     user= session.get('username')
-    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus, Extended_Time 
+    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost, ReturnStatus, Extended_Time 
             FROM reservation Natural Join car NATURAL JOIN reservation_extended_time 
             WHERE Username='{u}'""".format(u = user)
-            
+
     c.execute(sql)
     all_res = c.fetchall()
     
-    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus 
-            FROM reservation NATURAL JOIN car 
+    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus, Extended_Time 
+            FROM reservation NATURAL JOIN car NATURAL JOIN reservation_extended_time
             WHERE Username='{u}' AND PickUpDateTime < NOW() AND ReturnDateTime > NOW()""".format(u = user)
     c.execute(sql)
     current = c.fetchall()
@@ -372,7 +372,7 @@ def admin_reports():
     if not session.get('role') == 'admin':
         return redirect(url_for('home'))
 
-    sql = """SELECT reservation.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` 
+    sql = """SELECT reservation.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` ON reservation.VehicleSno = car.VehicleSno
             WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() 
             GROUP BY reservation.VehicleSno ORDER BY Type"""
     c.execute(sql)

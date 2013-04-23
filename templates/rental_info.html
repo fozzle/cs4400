@@ -17,10 +17,10 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for (resid, pick_time, ret_time, car, location, amount, ret_stat) in current %}
+	{% for (resid, pick_time, ret_time, car, location, amount, ret_stat, extended) in current %}
 	<tr>
 		<td>{{ pick_time }}</td>
-		<td>{{ ret_time }}</td>
+		<td>{% if not extended %}{{ ret_time }}{% else %}{{extended}}{% endif %}</td>
 		<td>{{ car }}</td>
 		<td>{{ location }}</td>
 		<td>{{ amount }}</td>
@@ -60,10 +60,10 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for (pick_time, ret_time,car,location,amount,ret_stat) in all_res %}
+	{% for (pick_time, ret_time,car,location,amount,ret_stat, extended) in all_res %}
 	<tr>
 		<td>{{ pick_time }}</td>
-		<td>{{ ret_time }}</td>
+		<td>{% if not extended %}{{ ret_time }}{% else %}{{extended}}{% endif %}</td>
 		<td>{{ car }}</td>
 		<td>{{ location }}</td>
 		<td>{{ amount }}</td>
