@@ -322,7 +322,7 @@ def manage_cars():
     c.execute(t)
     types = c.fetchall()
 
-    models = "SELECT CarModel FROM car GROUP BY CarModel"
+    models = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
     c.execute(models)
     models = c.fetchall()
 
@@ -363,12 +363,12 @@ def maint_request():
     c.execute(locations)
     locations = c.fetchall()
     
-    carmodel = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
-    c.execute(carmodel)
-    carmodels = c.fetchall()
+    models = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
+    c.execute(models)
+    models = c.fetchall()
 
     
-    return render_template('maint_request.html', carmodels = carmodels, locations = locations)
+    return render_template('maint_request.html', models = models, locations = locations)
 
 
 @app.route('/rental_change', methods=['GET'])
