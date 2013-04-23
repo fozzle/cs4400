@@ -40,7 +40,7 @@
 		<td>{% if Auxiliary_Cable %}Yes{% else %}No{% endif%}</td>
 		<td>{{ AvailableTill }}</td>
 		<td>{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}</td>
-		<td><input type="radio" id="car" value="{{vsno}}"></td>
+		<td><input type="radio" name="car" value="{{vsno}}"></td>
 	</tr>
 	{% endfor %}
 	</tbody>

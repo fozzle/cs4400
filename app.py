@@ -335,7 +335,7 @@ def manage_cars():
                             Seating_Capacity=request.form['seat'],
                             BluetoothConnectivity=request.form['blue'],
                             DailyRate=request.form['daily'],
-                            HourlyRate=request.form['hr'],
+                        HourlyRate=request.form['hr'],
                             Color=request.form['color'],
                             Type=request.form['type'],
                             CarModel=request.form['model'],
@@ -386,7 +386,13 @@ def loc_prefs():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
-    
+    sql = """SELECT mon_name, ReservationLocation, MAX(ResCount) as TotalReservations, total_hours FROM (
+              SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation
+              FROM reservation 
+              WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3
+              GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation
+            ) as thing GROUP BY mon_name"""
+
     return render_template('loc_prefs.html')
 
 @app.route('/freq_users', methods=['GET'])
