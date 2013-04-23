@@ -357,7 +357,15 @@ def manage_cars():
             flash('Car Inserted!')
         except pymysql.err.IntegrityError:
             flash("IntegrityError!", 'alert-error')
-
+	# sql_change_location="UPDATE car SET CarLocation ='newLocation' WHERE model = 'model'".format(newLocation=request.form['newLocation'], model=request.form['model'])
+	# not too sure but this sql is suppose to update the model choosen to the new location choosen?
+	#try:
+		#c.execute(sql_change_location)
+		#conn.commit()
+		#flash('Location has been updated!')
+	#except pymysql.err.IntergrityError:
+		#flash('Intergrity_Error!','alert-errot')
+	
         
         return render_template('manage_cars.html',locations = locations, types = types)
     
@@ -402,6 +410,8 @@ def loc_prefs():
               WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3
               GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation
             ) as thing GROUP BY mon_name"""
+    
+    c.execute(sql)
 
     return render_template('loc_prefs.html')
 
