@@ -1,7 +1,8 @@
 from flask import (Flask, session, redirect, url_for, 
-	request, render_template, flash)
+	request, render_template, flash, Response)
 import pymysql
 import os
+import json
 from datetime import date, timedelta, datetime
 app = Flask(__name__)
 
@@ -181,8 +182,13 @@ def personal_info():
         r = c.execute(card_sql)
         card = c.fetchone()
 
-    year = card[2].year
-    month = card[2].month    
+    if card[2]:     
+        year = card[2].year
+        month = card[2].month
+    else:
+        year = ''
+        month = ''
+
     return render_template('personal_info.html', user=user_row, plans=plans, card=card, year=year, month=month)
 
 @app.route('/rent', methods=['GET','POST'])
@@ -213,35 +219,42 @@ def availability():
         if session['role'] != 'member':
             return redirect(url_for('home'))
 
-        #Selecting what you want           
-        if request.method == 'POST':
-
-            a = request.form['car']
-            flash("you have rented a car!")
-
-            return redirect(url_for('home'))
+        
                     
         #Getting args
         pickdate = request.args.get('pickdate','')
         pickhour = request.args.get('pickhour','')
         pickmin = request.args.get('pickmin','')
+        pickdatetime = datetime(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
         
         returndate = request.args.get('returndate','')
         returnhour = request.args.get('returnhour','')
         returnmin = request.args.get('returnmin','')
+        returndatetime = datetime(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10]), int(returnhour), int(returnmin))
 
         location = request.args.get('location','')
         model = request.args.get('model','')
         car_type = request.args.get('types','')
 
-        delta = datetime(int(returndate[0:4]), int(returndate[5:7]), int(returndate[8:10]), int(returnhour), int(returnmin)) - datetime(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
+        delta = returndatetime - pickdatetime
         
         #making sure the date is less than two
         if delta.days > 2:
             flash("You cannot rent a car for more than two days")
             return redirect(url_for('rent'))
 
-        
+        #Selecting what you want           
+        if request.method == 'POST':
+            sql = """INSERT INTO reservation 
+                    VALUES (Username='{user}', PickUpDateTime='{pickup}', ReturnDateTime='{returnd}', 
+                            ReturnStatus='Out', EstimatedCost={cost}, ReservationLocation='{location}', VehicleSno={vsn})
+                    """.format(user=session.get('username'), pickup=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), 
+                                returnd=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), cost=request.form['cost'],
+                                location=request.form['location'], vsn=request.form['vsn'])
+            a = request.form['car']
+            flash("you have rented a car!")
+
+            return redirect(url_for('home'))
         
         #Setting the sql for the table
         if car_type:
@@ -296,9 +309,9 @@ def admin_reports():
     if not session.get('role') == 'admin':
         return redirect(url_for('home'))
 
-    sql = ("SELECT car.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` "
-            "WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() "
-            "GROUP BY VehicleSno ORDER BY Type")
+    sql = """SELECT reservation.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` 
+            WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() 
+            GROUP BY reservation.VehicleSno ORDER BY Type"""
     c.execute(sql)
     data = c.fetchall()
 
@@ -308,6 +321,48 @@ def admin_reports():
 #===========================================
 # EMPLOYEE FUNCTIONS
 #===========================================
+
+@app.route('/car_data', methods=['GET'])
+def car_data():
+    if not session.get('role') == 'emp':
+        abort(401)
+
+    if request.args.get('location', ''):
+        # location request, serve up cars in this location
+        sql = """SELECT *, 
+                CAST(Transmission_Type AS unsigned integer) as trans, 
+                CAST(Auxiliary_Cable AS unsigned integer) as aux, 
+                CAST(BluetoothConnectivity AS unsigned integer) as blue,
+                CAST(UnderMaintenanceFlag AS unsigned integer) as maint 
+                FROM car WHERE CarLocation = '{location}'""".format(location=request.args.get('location', ''))
+
+    elif request.args.get('vsn', ''):
+        # Specific request, serve up a car based on this request.
+        sql = """SELECT *,
+                CAST(Transmission_Type AS unsigned integer) as trans, 
+                CAST(Auxiliary_Cable AS unsigned integer) as aux, 
+                CAST(BluetoothConnectivity AS unsigned integer) as blue,
+                CAST(UnderMaintenanceFlag AS unsigned integer) as maint 
+                FROM car WHERE VehicleSno = {vsn}""".format(vsn=request.args.get('vsn',''))
+
+    c.execute(sql)
+    cars = c.fetchall()
+    js = []
+    for (vsn, aux_bit, trans_bit, cap, blue_bit, daily, hourly, color, cartype, model, maint_bit, loc, trans, aux, blue, maint) in cars:
+        js.append({"vsn": vsn,
+                    "aux": aux,
+                    "trans": trans,
+                    "cap": cap,
+                    "blue": blue,
+                    "daily": daily,
+                    "hourly": hourly,
+                    "color": color,
+                    "type": cartype,
+                    "model": model,
+                    "maint": maint,
+                    "location": loc})
+
+    return Response(json.dumps(js),  mimetype='application/json')
 
 @app.route('/manage_cars', methods=['GET', 'POST'])
 def manage_cars():
@@ -325,17 +380,6 @@ def manage_cars():
     models = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
     c.execute(models)
     models = c.fetchall()
-
-    by_location = "SELECT VehicleSno, CarModel, REPLACE(CarLocation, ' ', '') as locationkey FROM car"
-    c.execute(by_location)
-    by_location = {}
-    records = c.fetchall()
-    for record in records:
-        if by_location.get(record[2]):
-            by_location[record[2]].append(record)
-        else:
-            by_location[record[2]] = [record]
-
     
     if request.method == "POST":
         car_sql = ("INSERT INTO car(VehicleSno,Auxiliary_Cable,Transmission_Type,Seating_Capacity,BluetoothConnectivity,DailyRate,HourlyRate,Color,Type,CarModel,CarLocation) VALUES ({VehicleSno},{Auxiliary_Cable},{Transmission_Type},{Seating_Capacity},{BluetoothConnectivity},{DailyRate},{HourlyRate},'{Color}','{Type}','{CarModel}', '{CarLocation}')"
@@ -350,29 +394,48 @@ def manage_cars():
                             Type=request.form['type'],
                             CarModel=request.form['model'],
                             CarLocation=request.form['location'],))
-        print car_sql
+        
         try:
             c.execute(car_sql)
             conn.commit()
             flash('Car Inserted!')
         except pymysql.err.IntegrityError:
             flash("IntegrityError!", 'alert-error')
-	# sql_change_location="UPDATE car SET CarLocation ='newLocation' WHERE model = 'model'".format(newLocation=request.form['newLocation'], model=request.form['model'])
-	# not too sure but this sql is suppose to update the model choosen to the new location choosen?
-	#try:
-		#c.execute(sql_change_location)
-		#conn.commit()
-		#flash('Location has been updated!')
-	#except pymysql.err.IntergrityError:
-		#flash('Intergrity_Error!','alert-errot')
-	
+	   	
         
         return render_template('manage_cars.html',locations = locations, types = types)
     
     
-    return render_template('manage_cars.html', by_location=by_location, models = models, locations = locations, types = types)
+    return render_template('manage_cars.html', models = models, locations = locations, types = types)
 
-@app.route('/maint_request', methods=['GET'])
+@app.route('/update_car', methods=['GET', 'POST'])
+def update_car():
+    if not session.get('role') == 'emp':
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        if request.form['transType'] == 'Manual':
+            trans = 1
+        else:
+            trans = 0
+
+        car_sql = """UPDATE car SET CarLocation = '{l}', Type = '{t}', Color = '{c}', Seating_Capacity = {capacity}, 
+                    Transmission_Type = ({trans}) WHERE VehicleSno = {vsn}""".format(t=request.form['carType'],
+                                                                                c=request.form['color'],
+                                                                                capacity=request.form['seatCap'],
+                                                                                trans=trans,
+                                                                                l=request.form['newLocation'],
+                                                                                vsn=request.form['vsn'])
+        c.execute(car_sql)
+        conn.commit()
+        flash('Car updated!')
+    
+    return redirect(url_for('manage_cars'))
+
+
+
+
+@app.route('/maint_request', methods=['GET', 'POST'])
 def maint_request():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
@@ -380,13 +443,25 @@ def maint_request():
     locations = "SELECT LocationName FROM location"
     c.execute(locations)
     locations = c.fetchall()
-    
-    models = "SELECT Distinct CarModel FROM car GROUP BY CarModel"
-    c.execute(models)
-    models = c.fetchall()
 
-    
-    return render_template('maint_request.html', models = models, locations = locations)
+    if request.method == 'POST':
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        maint_req = """INSERT INTO maintenance_request 
+                        VALUES ({vsn}, '{now}', '{user}')""".format(vsn=request.form['vsn'], now=now, user=session.get('username'))
+
+        c.execute(maint_req)
+
+        maint_prob = """INSERT INTO maintenance_request_problems
+                        VALUES ({vsn}, '{now}', '{prob}')""".format(vsn=request.form['vsn'], now=now, user=session.get('username'), prob=request.form['problems'])
+        c.execute(maint_prob)
+
+        update_flag = """UPDATE car SET UnderMaintenanceFlag=(1) WHERE VehicleSno={vsn}""".format(vsn=request.form['vsn'])
+        c.execute(update_flag)
+
+        conn.commit()
+        flash('Your report has been submitted', 'alert-success')
+
+    return render_template('maint_request.html', locations = locations)
 
 
 @app.route('/rental_change', methods=['GET'])
@@ -413,7 +488,7 @@ def loc_prefs():
     
     c.execute(sql)
 
-    return render_template('loc_prefs.html')
+    return render_template('loc_prefs.html', data=c.fetchall())
 
 @app.route('/freq_users', methods=['GET'])
 def freq_users():
@@ -427,6 +502,7 @@ def freq_users():
     data = list(tupe)
     
     #If the list of data is more than five, it shortens it down to only the top five
+    # You can use the databse LIMIT param
     try:
         data = data[0:4]
     except:
@@ -446,6 +522,7 @@ def freq_users():
 def maint_history():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
+
     sql = "Select CarModel,RequestDateTime,Username,Problem From (Select VehicleSno, CarModel, RequestDateTime, Username,Problem from car NATURAL JOIN maintenance_request NATURAL JOIN maintenance_request_problems) as T Natural Join (SELECT VehicleSno, count(*) AS total FROM maintenance_request GROUP BY VehicleSno ORDER BY total ASC) as J ORDER BY total Desc"
     c.execute(sql)
     data = list(c.fetchall())

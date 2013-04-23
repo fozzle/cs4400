@@ -33,10 +33,15 @@
           {% if session['role'] == 'member' %}
           <li><a href="{{ url_for('personal_info') }}">Personal Profile</a></li>
           <li><a href="{{ url_for('rent') }}">Rent a Car</a></li>
+          <li><a href="{{ url_for('rental_info') }}">Rental Information</a></li>
           {% elif session['role'] == 'emp' %}
           <li><a href="{{ url_for('manage_cars') }}">Manage Cars</a></li>
+          <li><a href="{{ url_for('maint_request') }}">Maintenance Request</a></li>
           <li><a href="{{ url_for('loc_prefs') }}">Location Pref Report</a></li>
-          {% elif session['role'] == 'admin' %}  
+          <li><a href="{{ url_for('freq_users') }}">Frequent User Report</a></li>
+          <li><a href="{{ url_for('maint_history') }}">Maintenance History Report</a></li>
+          {% elif session['role'] == 'admin' %}
+          <li><a href="{{ url_for('admin_reports') }}">Admin Report</a></li>
           {% endif %}
           {% if session['username'] %}
           <li><a href="{{ url_for('logout') }}">Logout</a></li>

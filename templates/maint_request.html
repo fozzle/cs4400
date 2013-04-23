@@ -1,25 +1,34 @@
 {% extends 'base.html' %}
 {% block title %}Maintenance Request{% endblock %}
 {% block content %}
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 	<form action="" method="post">
-
-		<p><label>Choose car :</label>
-			<select name=model>
-			{% for (model) in models %}
-				<option value="{{model[0]}}">{{ model[0] }}</option>	
-			{% endfor %}
-			</select>
-		
 		<label>Choose location :</label>
-			<select name=location>
+		<select id='location_selector' name=location>
 			{% for (loc) in locations %}
 				<option value="{{ loc[0] }}">{{ loc[0] }}</option>	
 			{% endfor %}
-			</select>
+		</select>
+		<p>
+		<label>Choose car :</label>
+		<select id='location_mods' name=vsn>
+		</select>
 		
-		<label>Brief Description of Problem :</label><textarea name="problems" maxlength='45'>
-		</textarea><br>
+		<label>Brief Description of Problem :</label><textarea name="problems" maxlength='45'></textarea><br>
 		<p><button type=submit class=btn>Sumbit Request</button>
 		</form>
+		<script>
+			var updateLocation = function() {
+				var url = 'car_data?location=' + $('#location_selector').val();
+				$.getJSON(url, function(data){
+					$('#location_mods').empty()
+					$.each(data, function(index, car){
+						$('<option/>', { value : car.vsn }).text(car.model).appendTo('#location_mods');
+					});
+				});
+			}
+			$('#location_selector').change(updateLocation);
+			$(document).ready(updateLocation);
+		</script>
 			
 {% endblock %}

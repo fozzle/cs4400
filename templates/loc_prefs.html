@@ -3,6 +3,7 @@
 <form action= "" method="post">
 
 {% block content %}
+	<h2>Location Preferences: Last 3 Months</h2>
 	<table class="table">
 	<thead>
 	<tr>
@@ -19,7 +20,6 @@
 		<td>{{ location }}</td>
 		<td>{{ no_res }}</td>
 		<td>{{ no_hours }}</td>
-
 	</tr>
 	{% endfor %}
 	</tbody>

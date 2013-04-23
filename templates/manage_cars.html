@@ -43,53 +43,66 @@
 	</form>
 	</div>
 	<div class="span5 well">
-           	<h3>Change Car Location</h3>
-           	<form action="" method="put">
+        <h3>Change Car Location</h3>
+        <form action="{{ url_for('update_car') }}" method="post">
 			<p><label>Choose current location :</label>
-               			<select name=locations id="location_selector">
-               			{% for (loc) in locations %}
-               				<option value="{{loc[0]}}">{{loc[0]}}</option>
-               			{% endfor %}
-               			</select>
-               		<label>Choose Model :</label>
+           			<select name=location id="location_selector">
+           			{% for (loc) in locations %}
+           				<option value="{{loc[0]}}">{{loc[0]}}</option>
+           			{% endfor %}
+           			</select>
+           		<label>Choose Model :</label>
 
                	
-				<select name=model id="location_mods">
-					<option class="location_mods nil" value=""></option>
-					{% for location, record in by_location.items() %}
-						{% for vsn, model, location in record %}
-						<option class="location_mods {{ location }}" value="{{vsn}}">{{ model }}</option>
-						{% endfor %}
-					{% endfor %}
+				<select name=vsn id="location_mods">
+					
 				</select>
 
-				
-               		<p><label>Car Type :</label><input type=text name=carType>
-               		<p><label>Color :</label><input type=text name=color></p>
-               		<p><label>Seating Capacity :</label><input type=text name=seatCap></p>
-               		<p><label>Transmission Type :</label><input type=text name=transType></p>
-               		<p><label>Choose new location :</label>
-               			<select name=newLocations>
-               			{% for (loc) in locations %}
-               				<option value="{{loc[0]}}">{{loc[0]}}</option>
-               			{% endfor %}
-               			</select>
-               		<p><button type=submit class=btn>Submit Changes</button>
+           		<p><label>Car Type :</label><input id="modifyType" type=text name=carType>
+           		<p><label>Color :</label><input id="modifyColor" type=text name=color></p>
+           		<p><label>Seating Capacity :</label><input id="modifyCap" type=text name=seatCap></p>
+           		<p><label>Transmission Type :</label><input id="modifyTrans" type=text name=transType></p>
+           		<p><label>Choose new location :</label>
+           			<select name=newLocation>
+           			{% for (loc) in locations %}
+           				<option value="{{loc[0]}}">{{loc[0]}}</option>
+           			{% endfor %}
+           			</select>
+           		<p><button type=submit class=btn>Submit Changes</button>
                		
            	
 
-	</form>
+			</form>
+	</div>
 
 	<script>
-		$('#location_selector').change(function() {
-			var value = $('#location_selector').val();
-			value = value.replace(' ', '');
-			console.log(value);
-			$('.location_mods').hide();
-			$('.' + value).show();
-			$('.nil').show();
-			$('#location_mods').val('');
-		});
+
+		var updateCar = function() {
+			var url = 'car_data?vsn=' + $('#location_mods').val();
+			$.getJSON(url, function(data){
+				var car = data[0];
+				$('#modifyType').val(car.type);
+				$('#modifyColor').val(car.color);
+				$('#modifyCap').val(car.cap);
+				$('#modifyTrans').val(car.trans === 1 ? "Manual" : "Automatic");
+			})
+		}
+
+		var updateLocation = function() {
+			var url = 'car_data?location=' + $('#location_selector').val();
+			$.getJSON(url, function(data){
+				$('#location_mods').empty()
+				$.each(data, function(index, car){
+					$('<option/>', { value : car.vsn }).text(car.model).appendTo('#location_mods');
+				});
+				updateCar();
+			});
+		}
+
+		$('#location_selector').change(updateLocation);
+		$('#location_mods').change(updateCar);
+		$(document).ready(updateLocation);
+
 	</script>
 
 {% endblock %}
