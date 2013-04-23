@@ -233,7 +233,7 @@ def availability():
             c.execute(sql)
             conn.commit()
 
-            flash("you have rented a car!")
+            flash("You have rented a car!")
 
             return redirect(url_for('home'))
 
@@ -372,7 +372,7 @@ def admin_reports():
     if not session.get('role') == 'admin':
         return redirect(url_for('home'))
 
-    sql = """SELECT reservation.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` 
+    sql = """SELECT reservation.VehicleSno, Type, CarModel, SUM(EstimatedCost) , SUM(LateFees) FROM  `reservation` JOIN `car` ON reservation.VehicleSno = car.VehicleSno
             WHERE PickUpDateTime > DATE_SUB(NOW() ,INTERVAL 3 MONTH) AND PickUpDateTime < NOW() 
             GROUP BY reservation.VehicleSno ORDER BY Type"""
     c.execute(sql)
