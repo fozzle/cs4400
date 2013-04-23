@@ -3,11 +3,12 @@
 <form action= "" method="post">
 
 {% block content %}
+	<form method="post" action="">
 	<table class="table">
 	<thead>
 	<tr>
-		<th>Date</th>
-		<th>Reservation Time</th>
+		<th>PickUp Time</th>
+		<th>Return Time</th>
 		<th>Car</th>
 		<th>Location</th>
 		<th>Amount</th>
@@ -16,22 +17,37 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for (car,res_time,car,location,amount) in data %}
+	{% for (vsn, pick_time, ret_time, car, location, amount, ret_stat) in current %}
 	<tr>
-		<td>{{ Date }}</td>
-		<td>{{ res_time }}</td>
+		<td>{{ pick_time }}</td>
+		<td>{{ ret_time }}</td>
 		<td>{{ car }}</td>
 		<td>{{ location }}</td>
 		<td>{{ amount }}</td>
-
-
+		<td><input type="radio" name="extend" value="{{ vsn }}"></td>
 	</tr>
 	{% endfor %}
 	</tbody>
 	</table>
-	<p><button type=submit class=btn>Sumbit</button>
 
-	<table class="table2">
+	<p><select name=extenddate>
+			{% for (date) in dates %}
+				<option value="{{ date }}">{{ date }}</option>	
+			{% endfor %}
+		</select>
+		<select name=extendhour class="input-mini">
+			{% for x in range(0, 24) %}
+				<option value="{{ x }}">{{ x }}</option>
+			{% endfor %}
+		</select>:
+		<select name=extendmin class="input-mini">
+			<option value ="00" >:00</option>
+			<option value ="30" >:30</option>
+		</select>
+		<button type=submit class=btn>Extend</button>
+	</form>
+	<p><h3>Rental History</h3></p>
+	<table class="table">
 	<thead>
 	<tr>
 		<th>PickUp Time</th>
@@ -44,7 +60,7 @@
 	</tr>
 	</thead>
 	<tbody>
-	{% for (pick_time, ret_time,car,location,amount,ret_stat) in data2 %}
+	{% for (pick_time, ret_time,car,location,amount,ret_stat) in all_res %}
 	<tr>
 		<td>{{ pick_time }}</td>
 		<td>{{ ret_time }}</td>

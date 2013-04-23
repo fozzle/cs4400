@@ -2,6 +2,8 @@
 {% block title %}Car Availability{% endblock %}
 {% block content %}
 <form action="/availability" method="post">
+	<input type="hidden" name="pickdatetime" value="{{ pickdatetime }}">
+	<input type="hidden" name="returndatetime" value="{{ returndatetime }}">
 	<table class="table">
 	<thead>
 	<tr>
@@ -25,10 +27,11 @@
 	</thead>
 	<tbody>
 	{% for (vsno, CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable) in cars %}
-	<tr>
+	<tr {% if CarLocation == location %} class="success" {% endif %}>
 		<td>{{ CarModel }}</td>
 		<td>{{ Type }}</td>
-		<td>{{ CarLocation }}</td>
+		<td>{{ CarLocation }}
+			<input type="hidden" name="{{vsno}}location" value="{{ CarLocation }}"></td>
 		<td>{{ Color }}</td>
 		<td>{{ HourlyRate }}</td>
 		<td>{{ HourlyRate - (HourlyRate * 0.10) }}</td>
@@ -39,7 +42,8 @@
 		<td>{% if BlueToothConnectivity %}Yes{% else %}No{% endif %}</td>
 		<td>{% if Auxiliary_Cable %}Yes{% else %}No{% endif%}</td>
 		<td>{{ AvailableTill }}</td>
-		<td>{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}</td>
+		<td>{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}
+			<input type="hidden" name="{{vsno}}cost" value="{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}"></td>
 		<td><input type="radio" name="car" value="{{vsno}}"></td>
 	</tr>
 	{% endfor %}

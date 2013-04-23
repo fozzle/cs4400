@@ -219,6 +219,24 @@ def availability():
         if session['role'] != 'member':
             return redirect(url_for('home'))
 
+
+        #Selecting what you want           
+        if request.method == 'POST':
+
+            vsn = request.form['car']
+            pickdatetime = request.form['pickdatetime']
+            returndatetime = request.form['returndatetime']
+            sql = """INSERT INTO reservation(Username, PickUpDateTime, ReturnDateTime, ReturnStatus, EstimatedCost, ReservationLocation, VehicleSno)
+                    VALUES ('{user}', '{pickup}', '{returnd}', 'out', {cost}, '{location}', {vsn})""".format(user=session.get('username'), pickup=pickdatetime, returnd=returndatetime, 
+                                cost=request.form[vsn+'cost'], location=request.form[vsn+'location'], vsn=vsn)
+            
+            c.execute(sql)
+            conn.commit()
+
+            flash("you have rented a car!")
+
+            return redirect(url_for('home'))
+
         
                     
         #Getting args
@@ -243,19 +261,6 @@ def availability():
         if delta.days > 2:
             flash("You cannot rent a car for more than two days")
             return redirect(url_for('rent'))
-
-        #Selecting what you want           
-        if request.method == 'POST':
-            sql = """INSERT INTO reservation 
-                    VALUES (Username='{user}', PickUpDateTime='{pickup}', ReturnDateTime='{returnd}', 
-                            ReturnStatus='Out', EstimatedCost={cost}, ReservationLocation='{location}', VehicleSno={vsn})
-                    """.format(user=session.get('username'), pickup=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), 
-                                returnd=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), cost=request.form['cost'],
-                                location=request.form['location'], vsn=request.form['vsn'])
-            a = request.form['car']
-            flash("you have rented a car!")
-
-            return redirect(url_for('home'))
         
         #Setting the sql for the table
         if car_type:
@@ -286,19 +291,34 @@ def availability():
         else:
             discount = 1
 
-        return render_template('availability.html', cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days)
+        return render_template('availability.html', location=location,
+                                pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), 
+                                returndatetime=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), 
+                                cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days)
 
 @app.route('/rental_info', methods=['GET','POST'])
 def rental_info():
     if not session.get('role') == 'member':
         return redirect(url_for('home'))
-    user= session.get('username')
-    sql = "SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus FROM reservation Natural Join car WHERE Username='{u}'".format(u = user)
-    c.execute(sql)
-    data2 = list(c.fetchall())
-    print data2
 
-    return render_template('rental_info.html',data2= data2)
+    dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
+    if request.method == 'POST':
+        # Make sure no collision with reservation extension, and extend
+        pass
+
+    user= session.get('username')
+    sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost,ReturnStatus 
+            FROM reservation Natural Join car WHERE Username='{u}'""".format(u = user)
+    c.execute(sql)
+    all_res = c.fetchall()
+    
+    sql = """SELECT reservation.VehicleSno, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus 
+            FROM reservation NATURAL JOIN car 
+            WHERE Username='{u}' AND PickUpDateTime < NOW() AND ReturnDateTime > NOW()""".format(u = user)
+    c.execute(sql)
+    current = c.fetchall()
+
+    return render_template('rental_info.html',current=current, all_res=all_res, dates=dates)
 
 
 #===========================================
