@@ -326,6 +326,16 @@ def manage_cars():
     c.execute(models)
     models = c.fetchall()
 
+    by_location = "SELECT VehicleSno, CarModel, REPLACE(CarLocation, ' ', '') as locationkey FROM car"
+    c.execute(by_location)
+    by_location = {}
+    records = c.fetchall()
+    for record in records:
+        if by_location.get(record[2]):
+            by_location[record[2]].append(record)
+        else:
+            by_location[record[2]] = [record]
+
     
     if request.method == "POST":
         car_sql = ("INSERT INTO car(VehicleSno,Auxiliary_Cable,Transmission_Type,Seating_Capacity,BluetoothConnectivity,DailyRate,HourlyRate,Color,Type,CarModel,CarLocation) VALUES ({VehicleSno},{Auxiliary_Cable},{Transmission_Type},{Seating_Capacity},{BluetoothConnectivity},{DailyRate},{HourlyRate},'{Color}','{Type}','{CarModel}', '{CarLocation}')"
@@ -335,7 +345,7 @@ def manage_cars():
                             Seating_Capacity=request.form['seat'],
                             BluetoothConnectivity=request.form['blue'],
                             DailyRate=request.form['daily'],
-                        HourlyRate=request.form['hr'],
+                            HourlyRate=request.form['hr'],
                             Color=request.form['color'],
                             Type=request.form['type'],
                             CarModel=request.form['model'],
@@ -352,7 +362,7 @@ def manage_cars():
         return render_template('manage_cars.html',locations = locations, types = types)
     
     
-    return render_template('manage_cars.html', models = models, locations = locations, types = types)
+    return render_template('manage_cars.html', by_location=by_location, models = models, locations = locations, types = types)
 
 @app.route('/maint_request', methods=['GET'])
 def maint_request():

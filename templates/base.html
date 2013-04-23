@@ -35,6 +35,7 @@
           <li><a href="{{ url_for('rent') }}">Rent a Car</a></li>
           {% elif session['role'] == 'emp' %}
           <li><a href="{{ url_for('manage_cars') }}">Manage Cars</a></li>
+          <li><a href="{{ url_for('loc_prefs') }}">Location Pref Report</a></li>
           {% elif session['role'] == 'admin' %}  
           {% endif %}
           {% if session['username'] %}

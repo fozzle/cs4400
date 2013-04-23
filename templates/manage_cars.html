@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Manage Cars{% endblock %}
 {% block content %}
-	
-	<form action="" method="post">
-	<table width="100%" cellpadding="0" cellspacing="10" border="0">
-		<td width="50%" valign="top">
-			<a>ADD CAR</a>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<div class="span5 well">
+			<h3>Add Car</h3>
+			<form action="" method="post">
 			<p><label>Vehicle Sno :</label><input type=text name=vsno>
 			<p><label>Car Model :</label><input type=text name=model>
 			<p><label>Car Type :</label>
@@ -40,21 +39,31 @@
 				<option value ="1">Yes</option>
 				</select>
 			<p><button type=submit class=btn>Add</button>
-		</td>
-           	<td width="50%" valign="top">
-           		<a>CHANGE CAR LOCATION</a>
+
+	</form>
+	</div>
+	<div class="span5 well">
+           	<h3>Change Car Location</h3>
+           	<form action="" method="put">
 			<p><label>Choose current location :</label>
-               			<select name=locations>
+               			<select name=locations id="location_selector">
                			{% for (loc) in locations %}
                				<option value="{{loc[0]}}">{{loc[0]}}</option>
                			{% endfor %}
                			</select>
                		<label>Choose Model :</label>
-				<select name=model>
-				{% for (carmodel) in models %}
-					<option value="{{carmodel[0]}}">{{carmodel[0]}}</option>	
-				{% endfor %}
+
+               	
+				<select name=model id="location_mods">
+					<option class="location_mods nil" value=""></option>
+					{% for location, record in by_location.items() %}
+						{% for vsn, model, location in record %}
+						<option class="location_mods {{ location }}" value="{{vsn}}">{{ model }}</option>
+						{% endfor %}
+					{% endfor %}
 				</select>
+
+				
                		<p><label>Car Type :</label><input type=text name=carType>
                		<p><label>Color :</label><input type=text name=color></p>
                		<p><label>Seating Capacity :</label><input type=text name=seatCap></p>
@@ -67,8 +76,20 @@
                			</select>
                		<p><button type=submit class=btn>Submit Changes</button>
                		
-           	</td>
+           	
 
 	</form>
+
+	<script>
+		$('#location_selector').change(function() {
+			var value = $('#location_selector').val();
+			value = value.replace(' ', '');
+			console.log(value);
+			$('.location_mods').hide();
+			$('.' + value).show();
+			$('.nil').show();
+			$('#location_mods').val('');
+		});
+	</script>
 
 {% endblock %}
