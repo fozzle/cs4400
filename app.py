@@ -233,7 +233,7 @@ def availability():
             c.execute(sql)
             conn.commit()
 
-            flash("you have rented a car!")
+            flash("You have rented a car!")
 
             return redirect(url_for('home'))
 
