@@ -216,10 +216,6 @@ def rent():
 @app.route('/availability', methods=['GET','POST'])
 def availability():
 
-        if session['role'] != 'member':
-            return redirect(url_for('home'))
-
-
         #Selecting what you want           
         if request.method == 'POST':
 
@@ -298,16 +294,22 @@ def availability():
                         dic[x] = 'N/A'
 
 
+        discount = None
         #Getting the user's plan info so I can make an estimate of the cost
         user= session.get('username')
+        role = session.get('role')
         sql = "SELECT Discount FROM drivingplan JOIN member ON member.DrivingPlan = drivingplan.Type WHERE Username='{u}'".format(u = user)
 
         c.execute(sql)
         try:
             discount = c.fetchone()[0]
         except:
-            flash("You need to set up a plan!")
-            return(redirect(url_for('home')))
+            if role != 'emp':
+                flash("You need to set up a plan!")
+                return(redirect(url_for('home')))
+            else:
+                flash("Searching for available reservations")
+
         if discount:
             discount = (100.0 - discount)/100.0
         else:
@@ -360,6 +362,8 @@ def rental_info():
         collision = c.fetchall()
         if collision:
             flash('Someone else has already reserved that car at {date}'.format(date=collision[0][0]), 'alert-error')
+            return redirect(url_for('rental_info'))
+
 
         sql = """INSERT INTO reservation_extended_time 
                 VALUES ({resid}, '{extend}')""".format(resid=resid, extend=extenddatetime.strftime('%Y-%m-%d %H:%M:%S'))
@@ -585,7 +589,7 @@ def rental_change():
         c.execute(sql)
         conn.commit()
 
-        sql = """SELECT Username, PickUpDateTime, ReturnDateTime, EmailAddress, PhoneNo FROM reservation 
+        sql = """SELECT Username, PickUpDateTime, ReturnDateTime, EmailAddress, PhoneNo, ResID, ReservationLocation FROM reservation 
                 NATURAL JOIN member 
                 WHERE PickUpDateTime < '{overlap}' 
                 AND PickUpDateTime > '{curr}'""".format(overlap=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -625,16 +629,52 @@ def rental_change():
 
     return render_template('rental_change.html', dates=dates)
 
+@app.route('/delete_rental', methods=['POST'])
+def del_rental():
+    if not session.get('role') == 'emp':
+        return redirect(url_for('home'))
+
+    resid = request.form['overlapid']
+
+    sql = """DELETE FROM reservation WHERE ResID = {resid}""".format(resid=resid)
+    print sql
+    c.execute(sql)
+    conn.commit()
+
+    flash('The users conflicting reservation has been deleted', 'alert-success')
+
+    return redirect(url_for('rental_change'))
+
 @app.route('/loc_prefs', methods=['GET'])
 def loc_prefs():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
-    sql = """SELECT mon_name, ReservationLocation, ResCount, total_hours 
-            FROM 
-            (SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing1
-            WHERE (thing1.mon_name, thing1.ResCount) IN 
-            (SELECT mon_name, MAX(ResCount) FROM(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing GROUP BY mon_name) 
+    sql = """SELECT mon_name, ReservationLocation, ResCount, total_hours
+            FROM (
+                SELECT COUNT( ResID ) AS ResCount, SUM( TIMESTAMPDIFF( HOUR , PickUpDateTime, ReturnDateTime ) ) AS total_hours, MONTHNAME( PickUpDateTime ) AS mon_name, ReservationLocation
+                    FROM reservation
+                    WHERE PickUpDateTime > DATE_SUB( NOW( ) , INTERVAL 3 
+                    MONTH ) 
+                    AND PickUpDateTime < NOW( ) 
+                    GROUP BY YEAR( PickUpDateTime ) , MONTH( PickUpDateTime ) , ReservationLocation
+                ) AS thing1
+            WHERE (
+                thing1.mon_name, thing1.ResCount
+            )
+            IN (
+                SELECT mon_name, MAX( ResCount ) 
+                FROM (
+
+                SELECT COUNT( ResID ) AS ResCount, SUM( TIMESTAMPDIFF( HOUR , PickUpDateTime, ReturnDateTime ) ) AS total_hours, MONTHNAME( PickUpDateTime ) AS mon_name, ReservationLocation
+                    FROM reservation
+                    WHERE PickUpDateTime > DATE_SUB( NOW( ) , INTERVAL 3 
+                    MONTH ) 
+                    AND PickUpDateTime < NOW( ) 
+                    GROUP BY YEAR( PickUpDateTime ) , MONTH( PickUpDateTime ) , ReservationLocation
+                    ) AS thing
+                GROUP BY mon_name
+            )
             ORDER BY mon_name"""
                 
     c.execute(sql)

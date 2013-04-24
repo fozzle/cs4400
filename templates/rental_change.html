@@ -25,12 +25,12 @@
 				<p><label>New arrival time</label>
 					<select name=pickdate>
 						{% for (date) in dates %}
-							<option value="{{ date }}">{{ date }}</option>	
+							<option value="{{ date }}" {% if date == curr_date %}selected{%endif%}>{{ date }}</option>	
 						{% endfor %}
 					</select>
 					<select name=pickhour class="input-mini">
 						{% for x in range(0, 24) %}
-							<option value="{{ x }}">{{ x }}</option>
+							<option value="{{ x }}" {% if x == curr_hour %}selected{% endif %}>{{ x }}</option>
 						{% endfor %}
 					</select>:
 					<select name=pickmin class="input-mini">
@@ -41,35 +41,41 @@
 				<p><button type=submit class=btn>Update</button>
 			</td>
 	</form>
+	<form method='get' action="{{ url_for('availability') }}">
 			<td width="50%" valign="top">
 				<h3>User Affected</h3>
 				{% if overlap %}
 				<p><label>Username :</label><input type=text name=userAffected value="{{ overlap[0] }}"></p>
 				<p><label>Orginal pick up time :</label>
-					<select name="overpickdate">
+					<select name="pickdate">
 							<option value="{{ overlap[1].strftime('%Y-%m-%d') }}">{{ overlap[1].strftime('%Y-%m-%d') }}</option>	
 					</select>
-					<select name="overpickhour" class="input-mini">
+					<select name="pickhour" class="input-mini">
 							<option value="{{ overlap[1].strftime('%H') }}">{{ overlap[1].strftime('%H') }}</option>
 					</select>:
-					<select name="overpickmin" class="input-mini">
+					<select name="pickmin" class="input-mini">
 						<option value ="{{ overlap[1].strftime('%M') }}">{{ overlap[1].strftime('%M') }}</option>
 					</select>
 				<p><label>Orginal return time :</label>
-					<select name="overretdate">
+					<select name="returndate">
 							<option value="{{ overlap[2].strftime('%Y-%m-%d') }}">{{ overlap[2].strftime('%Y-%m-%d') }}</option>	
 					</select>
-					<select name="overrethour" class="input-mini">
+					<select name="returnhour" class="input-mini">
 							<option value="{{ overlap[2].strftime('%H') }}">{{ overlap[2].strftime('%H') }}</option>
 					</select>:
-					<select name="overretmin" class="input-mini">
+					<select name="returnmin" class="input-mini">
 						<option value ="{{ overlap[2].strftime('%M') }}">{{ overlap[2].strftime('%M') }}</option>
 					</select>
 				<p><label>Email Address :</label><input type=text name=email value="{{ overlap[3] }}"></p>
 				<p><label>Phone No. :</label><input type=text name=phone value="{{ overlap[4] }}"></p>
-				<p><button type=submit class=btn>Cancel Reservation</button>
-				<button type=submit class=btn>Show car availability</button>
+				<input type="hidden" value="{{ overlap[6] }}" name="location" />
+				<p><button type=submit class=btn>Show car availability</button>
+	</form>
+	<form method='post' action="{{ url_for('del_rental') }}">
+				<button type=submit class=btn>Cancel Reservation</button>
+				<input type="hidden" value="{{ overlap[5] }}" name="overlapid" />
 				{% endif %}
 			</td>
-		</form>
+	</form>
+		
 {% endblock %}
