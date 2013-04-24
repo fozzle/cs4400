@@ -266,18 +266,69 @@ def availability():
         
         #Setting the sql for the table
         if car_type:
-            sql = "SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' AND Type='{t}'".format(l = location, t = car_type)
-            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  Type='{t}' AND CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location, t = car_type)
+            sql = """SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE  CarLocation='{l}' AND Type='{car_type}'
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime)
+                        ) 
+                    ) desired_location 
+                    UNION ALL 
+                    SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE CarLocation != '{l}' AND Type='{car_type}'
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime) 
+                        ) 
+                    ORDER BY CarLocation) extra""".format(l=location, pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), returndatetime=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), car_type=car_type)
             
             
         elif model:
-            sql = "SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}' and CarModel='{m}') desired_location".format(l = location, m = model)
-            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarModel='{m}' AND CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location, m = model)
+            sql = """SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE  CarLocation='{l}' AND CarModel = '{model}'
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime)
+                        ) 
+                    ) desired_location 
+                    UNION ALL 
+                    SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE CarLocation != '{l}' AND CarModel = '{model}'
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime) 
+                        ) 
+                    ORDER BY CarLocation) extra""".format(l=location, pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), returndatetime=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), model=model)
             
         else:
-            sql = "SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}') desired_location ".format(l=location)
-            sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location)
-
+            sql = """SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE  CarLocation='{l}' 
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime)
+                        ) 
+                    ) desired_location 
+                    UNION ALL 
+                    SELECT * FROM 
+                    (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable 
+                        FROM car WHERE CarLocation != '{l}' 
+                        AND VehicleSno NOT IN (
+                            SELECT VehicleSno FROM reservation 
+                            WHERE ('{pickdatetime}' > PickUpDateTime AND '{pickdatetime}' < ReturnDateTime) 
+                            OR ('{returndatetime}' > PickUpDateTime AND '{returndatetime}' < ReturnDateTime) 
+                        ) 
+                    ORDER BY CarLocation) extra""".format(l=location, pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), returndatetime=returndatetime.strftime('%Y-%m-%d %H:%M:%S'))
+        print sql
         c.execute(sql)
         cars = c.fetchall()
         dic = {}
