@@ -527,25 +527,75 @@ def maint_request():
     return render_template('maint_request.html', locations = locations)
 
 
-@app.route('/rental_change', methods=['GET'])
+@app.route('/rental_change', methods=['GET', 'POST'])
 def rental_change():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
         
     dates = [x.strftime("%Y-%m-%d") for x in daterange(date.today(), date.today() + timedelta(365))]
 
-    pickdate = request.form['pickdate']
-    pickhour = request.form['pickhour']
-    pickmin = request.form['pickmin']
-    
-    pickdatetime = datetime(int(pickdate[0:4]), int(picksdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
+    if request.method == 'POST':
+        pickdate = request.form['pickdate']
+        pickhour = request.form['pickhour']
+        pickmin = request.form['pickmin']
 
-    dates = []
-    
-    rental_info= "SELECT car.CarModel , car.CarLocation, reservation.PickUpDateTime FROM car INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno WHERE reservation.Username = 'user' AND reservation.PickUpDateTime<now() AND reservation.ReturnDateTime>now()".format('user'=request.form['user'])
-    #rental_info selects the data needed to auto populate the text boxes
+        currdate = request.form['currdate']
+        currhour = request.form['currhour']
+        currmin = request.form['currmin']
 
-    return render_template('rental_change.html', dates = dates)
+        resid = request.form['resid']
+    
+        pickdatetime = datetime(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
+        currdatetime = datetime(int(currdate[0:4]), int(currdate[5:7]), int(currdate[8:10]), int(currhour), int(currmin))
+
+        if pickdatetime < currdatetime:
+            flash('You must pick a time after the current one', 'alert-error')
+            return redirect(url_for('rental_change'))
+
+        sql = """INSERT INTO reservation_extended_time 
+                VALUES ({resid}, '{extended}')""".format(resid=resid, extended=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'))
+
+        c.execute(sql)
+        conn.commit()
+
+        sql = """SELECT Username, PickUpDateTime, ReturnDateTime, EmailAddress, PhoneNo FROM reservation 
+                NATURAL JOIN member 
+                WHERE PickUpDateTime < '{overlap}' 
+                AND PickUpDateTime > '{curr}'""".format(overlap=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'),
+                                                        curr=currdatetime.strftime('%Y-%m-%d %H:%M:%S'))
+    
+        overlap = None
+        c.execute(sql)
+        overlap = c.fetchone()
+        if overlap:
+            flash('The new time has overlapped with an existing reservation, please amend')
+
+        flash('The user reservation has been extended', 'alert-success')
+        return render_template('rental_change.html', dates=dates, overlap=overlap)
+
+    if request.args.get('username',''):
+        rental_info = """SELECT car.CarModel , car.CarLocation, reservation.ReturnDateTime, reservation.resID FROM car 
+                        INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno 
+                        WHERE reservation.Username = '{user}' AND reservation.PickUpDateTime<now() 
+                        AND reservation.ReturnDateTime>now()""".format(user=request.args.get('username', ''))
+        #rental_info selects the data needed to auto populate the text boxes
+        c.execute(rental_info)
+        current = c.fetchone()
+
+        if current:
+            model, location, retdate, resid = current
+            curr_date = retdate.strftime("%Y-%m-%d")
+            curr_hour = retdate.hour
+            curr_min = retdate.minute
+        else:
+            flash('No current reservation for user: {user}'.format(user=request.args.get('username', '')))
+            curr_date = ''
+            curr_hour = ''
+            curr_min = ''
+
+        return render_template('rental_change.html', resid=resid, dates=dates, model=model, curr_date=curr_date, curr_hour=curr_hour, curr_min=curr_min, username=request.args.get('username', ''))
+
+    return render_template('rental_change.html', dates=dates)
 
 @app.route('/loc_prefs', methods=['GET'])
 def loc_prefs():
