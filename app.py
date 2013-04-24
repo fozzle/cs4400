@@ -129,6 +129,12 @@ def personal_info():
 
     if request.method == 'POST':
 
+        for k, v in request.form.iteritems():
+            if not v:
+                flash('Please fill out everything completely!')
+                return redirect(url_for('personal_info'))
+
+
         card_sql = ("INSERT INTO credit_card(CardNo, Name, CVV, ExpiryDate, BillingAdd) "
                     "VALUES ({cardno}, '{name}', {cvv}, '{exp_year}-{exp_mo}-01', '{billing}') ON DUPLICATE KEY UPDATE "
                     "Name='{name}', CVV={cvv}, ExpiryDate='{exp_year}-{exp_mo}-01', BillingAdd='{billing}'"
@@ -578,6 +584,8 @@ def rental_change():
     
         pickdatetime = datetime(int(pickdate[0:4]), int(pickdate[5:7]), int(pickdate[8:10]), int(pickhour), int(pickmin))
         currdatetime = datetime(int(currdate[0:4]), int(currdate[5:7]), int(currdate[8:10]), int(currhour), int(currmin))
+        late_by = pickdatetime - currdatetime
+        late_by = late_by.seconds/3600
 
         if pickdatetime < currdatetime:
             flash('You must pick a time after the current one', 'alert-error')
@@ -599,6 +607,10 @@ def rental_change():
         c.execute(sql)
         overlap = c.fetchone()
         if overlap:
+            sql = """UPDATE reservation SET LateFees={latefee} WHERE ResID={resid}""".format(latefee=50*late_by,resid=resid)
+            c.execute(sql)
+            conn.commit()
+
             flash('The new time has overlapped with an existing reservation, please amend')
 
         flash('The user reservation has been extended', 'alert-success')
@@ -674,8 +686,7 @@ def loc_prefs():
                     GROUP BY YEAR( PickUpDateTime ) , MONTH( PickUpDateTime ) , ReservationLocation
                     ) AS thing
                 GROUP BY mon_name
-            )
-            ORDER BY mon_name"""
+            )"""
                 
     c.execute(sql)
 
