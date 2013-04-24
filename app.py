@@ -348,19 +348,21 @@ def rental_info():
 
     user= session.get('username')
     sql = """SELECT PickUpDateTime,ReturnDateTime,CarModel,ReservationLocation,EstimatedCost, ReturnStatus, Extended_Time 
-            FROM reservation Natural Join car NATURAL JOIN reservation_extended_time 
+            FROM reservation r1 NATURAL JOIN car LEFT JOIN reservation_extended_time r2 ON r2.ResID = r1.ResID 
             WHERE Username='{u}'""".format(u = user)
 
     c.execute(sql)
     all_res = c.fetchall()
     
-    sql = """SELECT ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus, Extended_Time 
-            FROM reservation NATURAL JOIN car NATURAL JOIN reservation_extended_time
+    sql = """SELECT r1.ResID, PickUpDateTime, ReturnDateTime, CarModel, ReservationLocation, EstimatedCost, ReturnStatus, Extended_Time 
+            FROM reservation r1 NATURAL JOIN car LEFT JOIN reservation_extended_time r2 ON r2.ResID = r1.ResID 
             WHERE Username='{u}' AND PickUpDateTime < NOW() AND ReturnDateTime > NOW()""".format(u = user)
+
+    print sql
     c.execute(sql)
     current = c.fetchall()
 
-    return render_template('rental_info.html',current=current, all_res=all_res, dates=dates)
+    return render_template('rental_info.html', current=current, all_res=all_res, dates=dates)
 
 
 #===========================================
@@ -603,17 +605,12 @@ def loc_prefs():
         return redirect(url_for('home'))
 
     sql = """SELECT mon_name, ReservationLocation, ResCount, total_hours 
-
-FROM 
-
-(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing1
- 
-WHERE (thing1.mon_name, thing1.ResCount) IN 
-
-(SELECT mon_name, MAX(ResCount) FROM(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing GROUP BY mon_name) 
-
-ORDER BY mon_name"""
-    
+            FROM 
+            (SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing1
+            WHERE (thing1.mon_name, thing1.ResCount) IN 
+            (SELECT mon_name, MAX(ResCount) FROM(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing GROUP BY mon_name) 
+            ORDER BY mon_name"""
+                
     c.execute(sql)
 
     return render_template('loc_prefs.html', data=c.fetchall())
