@@ -41,7 +41,7 @@
 		<td>{% if Transmission_Type %}Manual{% else %}Automatic{% endif %}</td>
 		<td>{% if BlueToothConnectivity %}Yes{% else %}No{% endif %}</td>
 		<td>{% if Auxiliary_Cable %}Yes{% else %}No{% endif%}</td>
-		<td>{{ AvailableTill }}</td>
+		<td>{{ dic[vsno] }}</td>
 		<td>{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}
 			<input type="hidden" name="{{vsno}}cost" value="{{ (discount * HourlyRate * hours) + (discount * DailyRate * days) }}"></td>
 		<td><input type="radio" name="car" value="{{vsno}}"></td>
