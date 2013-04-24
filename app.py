@@ -552,12 +552,17 @@ def loc_prefs():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
-    sql = """SELECT mon_name, ReservationLocation, MAX(ResCount) as TotalReservations, total_hours FROM (
-              SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation
-              FROM reservation 
-              WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3
-              GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation
-            ) as thing GROUP BY mon_name"""
+    sql = """SELECT mon_name, ReservationLocation, ResCount, total_hours 
+
+FROM 
+
+(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing1
+ 
+WHERE (thing1.mon_name, thing1.ResCount) IN 
+
+(SELECT mon_name, MAX(ResCount) FROM(SELECT COUNT(ResID) as ResCount, SUM(TIMESTAMPDIFF(HOUR, PickUpDateTime, ReturnDateTime)) as total_hours, MonthName(PickUpDateTime) as mon_name, ReservationLocation FROM reservation WHERE PERIOD_DIFF(date_format(now(), '%Y%m'), date_format(PickUpDateTime, '%Y%m')) < 3 GROUP BY Year(PickUpDateTime), Month(PickUpDateTime), ReservationLocation) AS thing GROUP BY mon_name) 
+
+ORDER BY mon_name"""
     
     c.execute(sql)
 
