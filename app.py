@@ -276,25 +276,50 @@ def availability():
             sql = "SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation='{l}') desired_location ".format(l=location)
             sql += " UNION ALL SELECT * FROM (SELECT VehicleSno,CarModel,Type,CarLocation,Color,HourlyRate,DailyRate,Seating_Capacity,Transmission_Type,BluetoothConnectivity,Auxiliary_Cable FROM car WHERE  CarLocation != '{l}' ORDER BY CarLocation) extra".format(l=location)
 
-        print sql
         c.execute(sql)
         cars = c.fetchall()
+        dic = {}
+        vsnos = []
+        for item in cars:
+            vsnos.append(item[0])
+            dic[item[0]] = "N/A"
+
+        
+        sql = "SELECT Distinct VehicleSno,PickUpDateTime FROM reservation where PickUpDateTime > now()"
+        c.execute(sql)
+        avail = c.fetchall()
+
+        for x in vsnos:
+            for y in avail:
+                if str(x) == str(y[0]):
+                    dic[x] = y[1]
+                else:
+                    if x in dic == False:
+                        dic[x] = 'N/A'
+
 
         #Getting the user's plan info so I can make an estimate of the cost
         user= session.get('username')
         sql = "SELECT Discount FROM drivingplan JOIN member ON member.DrivingPlan = drivingplan.Type WHERE Username='{u}'".format(u = user)
 
         c.execute(sql)
-        discount = c.fetchone()[0]
+        try:
+            discount = c.fetchone()[0]
+        except:
+            flash("You need to set up a plan!")
+            return(redirect(url_for('home')))
         if discount:
             discount = (100.0 - discount)/100.0
         else:
             discount = 1
-
+        print vsnos
+        print dic
+        
         return render_template('availability.html', location=location,
                                 pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'), 
                                 returndatetime=returndatetime.strftime('%Y-%m-%d %H:%M:%S'), 
-                                cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days)
+                                cars = cars, discount=discount, hours=delta.seconds/3600, days=delta.days,
+                               dic = dic)
 
 @app.route('/rental_info', methods=['GET','POST'])
 def rental_info():
@@ -542,8 +567,7 @@ def rental_change():
 
     dates = []
     
-    rental_info= "SELECT car.CarModel , car.CarLocation, reservation.PickUpDateTime FROM car INNER JOIN reservation ON reservation.VehicleSno = car.VehicleSno WHERE reservation.Username = 'user' AND reservation.PickUpDateTime<now() AND reservation.ReturnDateTime>now()".format('user'=request.form['user'])
-    #rental_info selects the data needed to auto populate the text boxes
+
 
     return render_template('rental_change.html', dates = dates)
 
