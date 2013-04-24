@@ -725,7 +725,12 @@ def maint_history():
     if not session.get('role') == 'emp':
         return redirect(url_for('home'))
 
-    sql = "Select CarModel,RequestDateTime,Username,Problem From (Select VehicleSno, CarModel, RequestDateTime, Username,Problem from car NATURAL JOIN maintenance_request NATURAL JOIN maintenance_request_problems) as T Natural Join (SELECT VehicleSno, count(*) AS total FROM maintenance_request GROUP BY VehicleSno ORDER BY total ASC) as J ORDER BY total Desc"
+    sql = """SELECT CarModel,RequestDateTime,Username,Problem FROM (Select VehicleSno, CarModel, RequestDateTime, Username,Problem 
+            FROM car NATURAL JOIN maintenance_request 
+            NATURAL JOIN maintenance_request_problems) as T Natural Join 
+            (SELECT VehicleSno, count(*) AS total FROM maintenance_request GROUP BY VehicleSno ORDER BY total ASC) as J 
+            ORDER BY total Desc"""
+
     c.execute(sql)
     data = list(c.fetchall())
     print data
