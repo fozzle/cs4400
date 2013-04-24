@@ -338,7 +338,7 @@ def availability():
             dic[item[0]] = "N/A"
 
         
-        sql = "SELECT Distinct VehicleSno,PickUpDateTime FROM reservation where PickUpDateTime > now()"
+        sql = "SELECT Distinct VehicleSno,PickUpDateTime FROM reservation where PickUpDateTime > '{pickdatetime}'".format(pickdatetime=pickdatetime.strftime('%Y-%m-%d %H:%M:%S'))
         c.execute(sql)
         avail = c.fetchall()
 
